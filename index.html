@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinamik TRL Hesaplama Aracı</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Custom stil ve font ayarları */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom checkbox stili */
+        .custom-checkbox {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid #4A5568; /* gray-600 */
+            border-radius: 0.375rem; /* rounded-md */
+            background-color: #2D3748; /* gray-700 */
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
+        }
+        .custom-checkbox:checked {
+            background-color: #38B2AC; /* teal-500 */
+            border-color: #38B2AC; /* teal-500 */
+        }
+        .custom-checkbox:checked::after {
+            content: '✔';
+            color: white;
+            font-size: 1.1rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .progress-bar-inner {
+            transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <!-- Başlık -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Teknoloji Hazırlık Seviyesi (TRL) Değerlendirme Aracı</h1>
+            <p class="text-gray-400 mt-2">NASA metodolojisine dayalı dinamik değerlendirme formu.</p>
+        </header>
+
+        <!-- Sonuç Alanı -->
+        <div id="result-section" class="bg-gray-800 rounded-xl shadow-lg p-6 mb-8 sticky top-4 z-10 border border-gray-700">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="text-center md:text-left">
+                    <h2 class="text-lg font-semibold text-gray-400">Hesaplanan Teknoloji Hazırlık Seviyesi</h2>
+                    <p id="trl-level-text" class="text-5xl font-extrabold text-white">TRL 0</p>
+                    <p id="trl-title-text" class="text-cyan-400 mt-1 text-lg">Değerlendirme için kriterleri işaretleyin.</p>
+                </div>
+                <div class="w-full md:w-1/2">
+                    <div class="w-full bg-gray-700 rounded-full h-4">
+                        <div id="progress-bar" class="bg-cyan-600 h-4 rounded-full progress-bar-inner" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kriterler Formu -->
+        <form id="trl-form" class="space-y-6">
+            <!-- TRL seviyeleri buraya dinamik olarak eklenecek -->
+        </form>
+
+    </div>
+
+    <script>
+        // TRL verileri: Seviyeler, başlıklar ve kriterler
+        const trlData = [
+            {
+                level: 1,
+                title: "Temel prensiplerin gözlemlenmesi ve raporlanması",
+                criteria: [
+                    "Temel bilimsel araştırmalar başladı.",
+                    "Teknolojinin temel prensipleri kağıt üzerinde formüle edildi.",
+                    "Uygulama alanları teorik olarak belirlendi."
+                ]
+            },
+            {
+                level: 2,
+                title: "Teknoloji konseptinin ve/veya uygulamasının formüle edilmesi",
+                criteria: [
+                    "Teknolojinin pratik uygulamaları için hipotezler geliştirildi.",
+                    "Analitik çalışmalar ve tahminler yapıldı.",
+                    "Konseptin temel unsurları tanımlandı."
+                ]
+            },
+            {
+                level: 3,
+                title: "Kavramın analitik ve deneysel olarak kanıtlanması",
+                criteria: [
+                    "Kritik fonksiyonların analitik çalışmaları ve laboratuvar deneyleri tamamlandı.",
+                    "Kavram kanıtı (Proof-of-Concept) için ilk prototipler (breadboard) oluşturuldu.",
+                    "Bileşenler ayrı ayrı test edildi."
+                ]
+            },
+            {
+                level: 4,
+                title: "Bileşen ve/veya alt sistemlerin laboratuvar ortamında doğrulanması",
+                criteria: [
+                    "Temel teknolojik bileşenler laboratuvar ortamında bir araya getirildi.",
+                    "Sistem prototipi, simüle edilmiş bir operasyonel ortamda test edildi.",
+                    "Performans hedefleriyle karşılaştırmalı ilk sonuçlar alındı."
+                ]
+            },
+            {
+                level: 5,
+                title: "Bileşen ve/veya alt sistemlerin ilişkili ortamda doğrulanması",
+                criteria: [
+                    "Prototipin sadakati yüksek bir versiyonu geliştirildi.",
+                    "Sistem, gerçekçi bir ortamda (örneğin, yüksek irtifa balonu, test uçağı) test edildi.",
+                    "Teknolojinin sağlamlığı ve güvenilirliği değerlendirildi."
+                ]
+            },
+            {
+                level: 6,
+                title: "Sistem/alt sistem modelinin veya prototipinin ilişkili ortamda gösterimi",
+                criteria: [
+                    "Yüksek sadakatli bir mühendislik prototipi üretildi.",
+                    "Prototip, hedeflenen operasyonel ortama çok yakın bir çevrede başarıyla test edildi.",
+                    "Nihai sisteme entegrasyon için riskler büyük ölçüde azaltıldı."
+                ]
+            },
+            {
+                level: 7,
+                title: "Sistem prototipinin uzay/operasyonel ortamda gösterimi",
+                criteria: [
+                    "Gerçek operasyonel ortamda (örneğin yörüngede, sahada) test edilecek bir prototip geliştirildi.",
+                    "Prototip, operasyonel ortamda tüm fonksiyonlarını başarıyla yerine getirdi.",
+                    "Mühendislik ve ölçeklendirme sorunları çözüldü."
+                ]
+            },
+            {
+                level: 8,
+                title: "Gerçek sistemin tamamlanması ve 'uçuşa elverişlilik' testlerinin yapılması",
+                criteria: [
+                    "Nihai ürün (donanım/yazılım) geliştirildi ve tamamlandı.",
+                    "Sistem, zorlu test ve değerlendirme süreçlerinden geçti.",
+                    "Tüm operasyonel gereksinimleri karşıladığı belgelendi."
+                ]
+            },
+            {
+                level: 9,
+                title: "Gerçek sistemin görev ortamında başarıyla 'görevini kanıtlaması'",
+                criteria: [
+                    "Teknoloji, tam operasyonel koşullar altında başarıyla kullanıldı.",
+                    "Sistem, ticari veya görev amaçlı olarak rutin bir şekilde çalışıyor.",
+                    "Teknolojinin yaşam döngüsü yönetimi ve desteği planlandı."
+                ]
+            }
+        ];
+
+        const form = document.getElementById('trl-form');
+        const levelText = document.getElementById('trl-level-text');
+        const titleText = document.getElementById('trl-title-text');
+        const progressBar = document.getElementById('progress-bar');
+
+        /**
+         * Formu TRL verilerine göre dinamik olarak oluşturan fonksiyon.
+         */
+        function initializeForm() {
+            trlData.forEach((levelData, levelIndex) => {
+                // Her TRL seviyesi için bir bölüm oluştur
+                const section = document.createElement('div');
+                section.className = 'bg-gray-800 p-6 rounded-lg border border-gray-700';
+
+                // TRL başlığı
+                const title = document.createElement('h3');
+                title.className = 'text-xl font-bold mb-4 text-cyan-500';
+                title.textContent = `TRL ${levelData.level}: ${levelData.title}`;
+                section.appendChild(title);
+
+                // Kriterler için bir konteyner
+                const criteriaContainer = document.createElement('div');
+                criteriaContainer.className = 'space-y-4';
+                
+                // Her kriter için bir checkbox ve label oluştur
+                levelData.criteria.forEach((criterion, criterionIndex) => {
+                    const criterionId = `trl-${levelIndex}-crit-${criterionIndex}`;
+                    
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'flex items-center p-3 rounded-md hover:bg-gray-700 transition-colors';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = criterionId;
+                    checkbox.className = 'custom-checkbox mr-4 flex-shrink-0';
+                    checkbox.dataset.level = levelIndex;
+                    checkbox.addEventListener('change', calculateTRL);
+
+                    const label = document.createElement('label');
+                    label.htmlFor = criterionId;
+                    label.textContent = criterion;
+                    label.className = 'text-gray-300 cursor-pointer';
+
+                    wrapper.appendChild(checkbox);
+                    wrapper.appendChild(label);
+                    criteriaContainer.appendChild(wrapper);
+                });
+
+                section.appendChild(criteriaContainer);
+                form.appendChild(section);
+            });
+        }
+
+        /**
+         * İşaretlenen checkbox'lara göre TRL seviyesini hesaplayan fonksiyon.
+         * Bir seviyenin tamamlanması için, o seviyenin ve önceki tüm seviyelerin
+         * tüm kriterlerinin işaretlenmiş olması gerekir.
+         */
+        function calculateTRL() {
+            let currentTRL = 0;
+            
+            for (let i = 0; i < trlData.length; i++) {
+                const levelIndex = i;
+                const criteriaForLevel = document.querySelectorAll(`input[data-level='${levelIndex}']`);
+                
+                // Belirli bir seviyedeki tüm checkbox'ların işaretli olup olmadığını kontrol et
+                const allChecked = Array.from(criteriaForLevel).every(checkbox => checkbox.checked);
+
+                if (allChecked) {
+                    currentTRL = trlData[levelIndex].level;
+                } else {
+                    // Eğer bir seviye tamamlanmamışsa, daha ileri seviyelere bakmaya gerek yok
+                    break;
+                }
+            }
+            
+            updateUI(currentTRL);
+        }
+
+        /**
+         * Hesaplanan TRL'e göre kullanıcı arayüzünü güncelleyen fonksiyon.
+         * @param {number} level - Hesaplanan TRL seviyesi.
+         */
+        function updateUI(level) {
+            levelText.textContent = `TRL ${level}`;
+            
+            if (level > 0) {
+                const levelData = trlData[level - 1];
+                titleText.textContent = levelData.title;
+            } else {
+                titleText.textContent = "Değerlendirme için kriterleri işaretleyin.";
+            }
+
+            // Progress bar'ı güncelle
+            const progressPercentage = (level / trlData.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+
+            // Progress bar rengini seviyeye göre değiştir
+            if (level < 4) {
+                progressBar.style.backgroundColor = '#DD6B20'; // orange-500
+            } else if (level < 7) {
+                progressBar.style.backgroundColor = '#D69E2E'; // yellow-500
+            } else {
+                progressBar.style.backgroundColor = '#38A169'; // green-500
+            }
+            
+            // TRL 9 tamamlandığında özel bir renk
+            if (level === 9) {
+                 progressBar.style.backgroundColor = '#38B2AC'; // teal-500
+            }
+        }
+
+        // Sayfa yüklendiğinde formu oluştur ve ilk hesaplamayı yap
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeForm();
+            calculateTRL();
+        });
+
+    </script>
+</body>
+</html>
