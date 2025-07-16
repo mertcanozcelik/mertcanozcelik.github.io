@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dinamik TRL Hesaplama Aracı</title>
+    <title>Gelişmiş TRL Puanlama Aracı (Mühendislik & Yazılım)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter -->
@@ -11,51 +11,77 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Custom stil ve font ayarları */
         body {
             font-family: 'Inter', sans-serif;
-        }
-        /* Custom checkbox stili */
-        .custom-checkbox {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            width: 1.5rem;
-            height: 1.5rem;
-            border: 2px solid #4A5568; /* gray-600 */
-            border-radius: 0.375rem; /* rounded-md */
-            background-color: #2D3748; /* gray-700 */
-            transition: all 0.2s ease-in-out;
-            cursor: pointer;
-            position: relative;
-        }
-        .custom-checkbox:checked {
-            background-color: #38B2AC; /* teal-500 */
-            border-color: #38B2AC; /* teal-500 */
-        }
-        .custom-checkbox:checked::after {
-            content: '✔';
-            color: white;
-            font-size: 1.1rem;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
         }
         .progress-bar-inner {
             transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
         }
+        /* Bölüm Seçici Buton Stilleri (Güncellendi) */
+        .section-selector button {
+            background-color: #374151; /* gray-700 */
+            color: #D1D5DB; /* gray-300 */
+        }
+        .section-selector button.active {
+            background-color: #3B82F6; /* blue-500 */
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+        /* Custom Radio Button Stilleri */
+        .radio-group {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 0.5rem;
+            justify-content: flex-start; /* Mobil için sola hizalı */
+            md:justify-content: flex-end; /* Geniş ekranda sağa hizalı */
+        }
+        .radio-label {
+            cursor: pointer;
+            padding: 0.5rem 0.75rem;
+            border-radius: 9999px; /* rounded-full */
+            border: 1px solid #4A5568; /* gray-600 */
+            background-color: #2D3748; /* gray-800 */
+            color: #A0AEC0; /* gray-400 */
+            font-size: 0.75rem;
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+            white-space: nowrap; /* Buton metinlerinin kaymasını engeller */
+        }
+        .radio-label:hover {
+            background-color: #4A5568; /* gray-600 */
+            color: #FFFFFF;
+        }
+        .radio-input {
+            display: none;
+        }
+        .radio-input:checked + .radio-label {
+            color: #FFFFFF;
+            font-weight: 600;
+            border-color: transparent;
+        }
+        /* Renkler */
+        .radio-input[value="0"]:checked + .radio-label { background-color: #718096; } /* gray-500 */
+        .radio-input[value="20"]:checked + .radio-label { background-color: #C53030; } /* red-700 */
+        .radio-input[value="40"]:checked + .radio-label { background-color: #DD6B20; } /* orange-600 */
+        .radio-input[value="60"]:checked + .radio-label { background-color: #D69E2E; } /* yellow-500 */
+        .radio-input[value="80"]:checked + .radio-label { background-color: #38A169; } /* green-600 */
+        .radio-input[value="100"]:checked + .radio-label { background-color: #3182CE; } /* blue-600 */
     </style>
 </head>
 <body class="bg-gray-900 text-white antialiased">
 
     <div class="container mx-auto p-4 md:p-8">
         
-        <!-- Başlık -->
         <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Teknoloji Hazırlık Seviyesi (TRL) Değerlendirme Aracı</h1>
-            <p class="text-gray-400 mt-2">NASA metodolojisine dayalı dinamik değerlendirme formu.</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Gelişmiş Teknoloji Hazırlık Seviyesi (TRL) Aracı</h1>
+            <p class="text-gray-400 mt-2">Kriter bazlı dinamik puanlama ve seviye tespiti.</p>
         </header>
+
+        <!-- Bölüm Seçici -->
+        <div id="section-selector" class="flex justify-center mb-8 bg-gray-800 p-1 rounded-lg w-full max-w-md mx-auto">
+            <button id="btn-engineering" class="w-1/2 px-4 py-2 rounded-md font-semibold transition-colors duration-300 active">Genel Mühendislik</button>
+            <button id="btn-software" class="w-1/2 px-4 py-2 rounded-md font-semibold transition-colors duration-300">Yazılım</button>
+        </div>
 
         <!-- Sonuç Alanı -->
         <div id="result-section" class="bg-gray-800 rounded-xl shadow-lg p-6 mb-8 sticky top-4 z-10 border border-gray-700">
@@ -63,7 +89,7 @@
                 <div class="text-center md:text-left">
                     <h2 class="text-lg font-semibold text-gray-400">Hesaplanan Teknoloji Hazırlık Seviyesi</h2>
                     <p id="trl-level-text" class="text-5xl font-extrabold text-white">TRL 0</p>
-                    <p id="trl-title-text" class="text-cyan-400 mt-1 text-lg">Değerlendirme için kriterleri işaretleyin.</p>
+                    <p id="trl-title-text" class="text-cyan-400 mt-1 text-lg">Değerlendirme için kriterleri puanlayın.</p>
                 </div>
                 <div class="w-full md:w-1/2">
                     <div class="w-full bg-gray-700 rounded-full h-4">
@@ -74,216 +100,194 @@
         </div>
 
         <!-- Kriterler Formu -->
-        <form id="trl-form" class="space-y-6">
+        <div id="trl-form" class="space-y-6">
             <!-- TRL seviyeleri buraya dinamik olarak eklenecek -->
-        </form>
+        </div>
 
     </div>
 
     <script>
-        // TRL verileri: Seviyeler, başlıklar ve kriterler
-        const trlData = [
-            {
-                level: 1,
-                title: "Temel prensiplerin gözlemlenmesi ve raporlanması",
-                criteria: [
-                    "Temel bilimsel araştırmalar başladı.",
-                    "Teknolojinin temel prensipleri kağıt üzerinde formüle edildi.",
-                    "Uygulama alanları teorik olarak belirlendi."
-                ]
-            },
-            {
-                level: 2,
-                title: "Teknoloji konseptinin ve/veya uygulamasının formüle edilmesi",
-                criteria: [
-                    "Teknolojinin pratik uygulamaları için hipotezler geliştirildi.",
-                    "Analitik çalışmalar ve tahminler yapıldı.",
-                    "Konseptin temel unsurları tanımlandı."
-                ]
-            },
-            {
-                level: 3,
-                title: "Kavramın analitik ve deneysel olarak kanıtlanması",
-                criteria: [
-                    "Kritik fonksiyonların analitik çalışmaları ve laboratuvar deneyleri tamamlandı.",
-                    "Kavram kanıtı (Proof-of-Concept) için ilk prototipler (breadboard) oluşturuldu.",
-                    "Bileşenler ayrı ayrı test edildi."
-                ]
-            },
-            {
-                level: 4,
-                title: "Bileşen ve/veya alt sistemlerin laboratuvar ortamında doğrulanması",
-                criteria: [
-                    "Temel teknolojik bileşenler laboratuvar ortamında bir araya getirildi.",
-                    "Sistem prototipi, simüle edilmiş bir operasyonel ortamda test edildi.",
-                    "Performans hedefleriyle karşılaştırmalı ilk sonuçlar alındı."
-                ]
-            },
-            {
-                level: 5,
-                title: "Bileşen ve/veya alt sistemlerin ilişkili ortamda doğrulanması",
-                criteria: [
-                    "Prototipin sadakati yüksek bir versiyonu geliştirildi.",
-                    "Sistem, gerçekçi bir ortamda (örneğin, yüksek irtifa balonu, test uçağı) test edildi.",
-                    "Teknolojinin sağlamlığı ve güvenilirliği değerlendirildi."
-                ]
-            },
-            {
-                level: 6,
-                title: "Sistem/alt sistem modelinin veya prototipinin ilişkili ortamda gösterimi",
-                criteria: [
-                    "Yüksek sadakatli bir mühendislik prototipi üretildi.",
-                    "Prototip, hedeflenen operasyonel ortama çok yakın bir çevrede başarıyla test edildi.",
-                    "Nihai sisteme entegrasyon için riskler büyük ölçüde azaltıldı."
-                ]
-            },
-            {
-                level: 7,
-                title: "Sistem prototipinin uzay/operasyonel ortamda gösterimi",
-                criteria: [
-                    "Gerçek operasyonel ortamda (örneğin yörüngede, sahada) test edilecek bir prototip geliştirildi.",
-                    "Prototip, operasyonel ortamda tüm fonksiyonlarını başarıyla yerine getirdi.",
-                    "Mühendislik ve ölçeklendirme sorunları çözüldü."
-                ]
-            },
-            {
-                level: 8,
-                title: "Gerçek sistemin tamamlanması ve 'uçuşa elverişlilik' testlerinin yapılması",
-                criteria: [
-                    "Nihai ürün (donanım/yazılım) geliştirildi ve tamamlandı.",
-                    "Sistem, zorlu test ve değerlendirme süreçlerinden geçti.",
-                    "Tüm operasyonel gereksinimleri karşıladığı belgelendi."
-                ]
-            },
-            {
-                level: 9,
-                title: "Gerçek sistemin görev ortamında başarıyla 'görevini kanıtlaması'",
-                criteria: [
-                    "Teknoloji, tam operasyonel koşullar altında başarıyla kullanıldı.",
-                    "Sistem, ticari veya görev amaçlı olarak rutin bir şekilde çalışıyor.",
-                    "Teknolojinin yaşam döngüsü yönetimi ve desteği planlandı."
-                ]
-            }
+        // --- VERİ SETLERİ ---
+        const engineeringTrlData = [
+            { level: 1, title: "Temel ilkeler gözlemlenmiş ve raporlanmış", criteria: [ { id: "THS1-1", text: "Temel Bilimsel Araştırmalar: Teknolojiye temel teşkil eden bilimsel araştırmalara ilişkin bir hipotezin formüle edildiği ve doğruluğunun kanıtlandığı, bilimsel makale çalışmalarının tamamlandığı aşamadır." }, { id: "THS1-2", text: "Yeni malzeme ya da teknolojinin temel karakteristikleri tanımlandı mı?" }, { id: "THS1-3", text: "Mühendislik ekibinde görev alan ilgili teknoloji uzmanları teknoloji hakkında bilgilendirilip teknolojinin sağlayacağı fayda ve riskler anlaşıldı mı?" }, { id: "THS1-4", text: "Benzer teknolojiler, yeni mühendislik yetenekleri, yöntemleri ve araçlarının geliştirilmesine olanak sağlandı mı?" }, { id: "THS1-5", text: "Teknolojinin geliştirilme ve ölçeklenme süresince riskler tanımlandı mı?" }, { id: "THS1-6", text: "Teknoloji çalışmasını tetikleyen gereksinimler tanımlandı mı?" } ] },
+            { level: 2, title: "Teknoloji kavramı ve / veya uygulaması formüle edilmiş", criteria: [ { id: "THS2-1", text: "Teknoloji Uygulama Alanlarının Araştırıldığı Konsept: Teknolojinin teknolojik kapsamının ve karakteristik özelliklerinin tanımlandığı, uygulama alanlarının formüle edildiği aşamadır." }, { id: "THS2-2", text: "Teknolojinin kullanım alanlarındaki rekabetçilerine (yeni yetkinlikler, metot, araç vb.) ve tedarik zincirine etkisinin ön değerlendirmesi yapıldı mı?" }, { id: "THS2-3", text: "Potansiyel uygulamalar tanımlandı mı?" }, { id: "THS2-4", text: "Ön performans tahminleri yapıldı mı?" }, { id: "THS2-5", text: "Ön analitik çalışmalar temel kavramı doğruladı mı?" } ] },
+            { level: 3, title: "Kavramın analitik ve deneysel olarak kritik işlev ve / veya karakteristik (ayırt edici özellik) olarak ispatlanması", criteria: [ { id: "THS3-1", text: "Temel Bilimsel Araştırmalar/Teknoloji Yapılabilirliği: Teknolojinin TRL 2’de belirlenen kritik işlev ve niteliklerinin analitik ve deneysel olarak kanıtlandığı (Proof of concept) aşamadır." }, { id: "THS3-2", text: "Kavram/uygulamanın kritik fonksiyonları/bileşenleri belirlendi mi?" }, { id: "THS3-3", text: "Anahtar parametreler için ön performans metrikleri saptandı mı?" }, { id: "THS3-4", text: "Malzeme ve sürecin ürüne ve endüstriyel ortama entegrasyonunun ön değerlendirmesi yapıldı mı?" }, { id: "THS3-5", text: "Teknolojik ürünün entegre edeceği ürün Grubu’nun uyumu sağlandı mı?" } ] },
+            { level: 4, title: "Düşük sadakatli bileşen veya deney modelinin temel fonksiyonları laboratuvar ortamında geçerli kılınması", criteria: [ { id: "THS4-1", text: "Laboratuvar Ortamında Teknoloji/Sistem Bileşenlerinin Gerçeklenmesi: Hedeflenen teknoloji/sistem bileşenlerinin birbirine entegre edildiği ve doğrulanmasının (validation) laboratuvar ortamında yapıldığı aşamadır." }, { id: "THS4-2", text: "Kavram / uygulama, detaylı sistem / alt sistem / bileşen seviyesinde deney platformu tasarımına çevrildi mi?" }, { id: "THS4-3", text: "Modelleme ve simülasyon ile laboratuvar test ölçüsü performans tahminleri değerlendirildi mi?" }, { id: "THS4-4", text: "Laboratuvar testleri için performans metrikleri oluşturuldu mu? İlgili test ortamı tanımlandı mı?" } ] },
+            { level: 5, title: "Orta sadakatli bileşen veya deney modeli elverişli edilen işletim ortamında doğrulanmış", criteria: [ { id: "THS5-1", text: "Simüle Edilmiş (Benzetimli) Ortamda Teknoloji/Sistem Bileşenlerinin Gerçeklenmesi: Bileşenlerin ve/veya alt sistemlerin simüle ortamda test edildiği ve doğrulandığı aşamadır. (validation)" }, { id: "THS5-2", text: "Sistem arayüz gereksinimleri belirlendi mi?" }, { id: "THS5-3", text: "Daha sonraki geliştirme fazları için sistem seviyesi performans tahminleri yapıldı mı?" }, { id: "THS5-4", text: "Orta sadakat seviyesindeki deney modelinin gösterimi yapıldı mı?" }, { id: "THS5-5", text: "Boyutlandırılamayan, lineer olmayan hedeflenen uygulama için ilgili tasarım prensipleri doğrulandı mı?" } ] },
+            { level: 6, title: "Tam sistem prototipinin benzetimli işletim ortamında çalıştırılarak kritik çevre koşullarında çalıştığının gösterimi yapılmış", criteria: [ { id: "THS6-1", text: "Prototip Sisteminin Simüle Edilmiş Ortamda Doğrulanması: Hedeflenen teknoloji/sistemin, temsili modelin ya da prototipin yüksek sadakatli laboratuvar ortamında veya simüle edilmiş ortamda test edildiği aşamadır." }, { id: "THS6-2", text: "Operasyonel ortama yakın son haline getirildi mi? Kritik noktalar belirlendi mi?" }, { id: "THS6-3", text: "Yüksek sadakatli tam ölçekli prototip bütün kritik ölçek gereksinimlerini sağlayacak şekilde imal edildi mi?" }, { id: "THS6-4", text: "Tam ölçekli prototip ilgili ortamda çalıştırılarak kritik çevre koşullarında çalıştığının gösterimi yapıldı mı?" } ] },
+            { level: 7, title: "Sistem prototipinin gerçek operasyon ortamında çalıştığının gösterimi yapılmış", criteria: [ { id: "THS7-1", text: "Gerçek (Operasyonel) Ortamda Prototipin Doğrulanması: Temsili sistem prototipinin gerçek (operasyonel) ortamda tüm fonksiyonlarının test edildiği aşamadır." }, { id: "THS7-2", text: "Sistem tasarımının temeli (Baseline) oluşturuldu mu?" }, { id: "THS7-3", text: "Prototipte / pilot sistemde modellenen bileşenler, üretimde kullanılacak bileşenleri temsil edecek şekilde yükseltildi mi?" }, { id: "THS7-4", text: "Tasarım, tüm kritik ölçekleri dikkate alacak şekilde yapıldı mı?" }, { id: "THS7-5", text: "Entegre mühendislik modeli ya da ölçekli prototip ünitesi tüm kritik ölçekleri ve dış ara yüzleri içerecek şekilde üretildi mi?" }, { id: "THS7-6", text: "Entegre prototip ünitesinin operasyonel ortamda başarıyla görev yaptığı gösterildi mi?" }, { id: "THS7-7", text: "Entegre edilmiş prototipin operasyonel ortamda risk gösterimi yapıldı mı?" } ] },
+            { level: 8, title: "Son ürünün nihai konfigürasyonu ile planlı operasyonel sistem ve platformda başarı ile çalıştığının gösterimi test ve analizler ile gerçekleştirilmiş", criteria: [ { id: "THS8-1", text: "Gerçek Sistemin Test Edilmesi ve Gösterimi ile Değerlendirilmesi: Teknolojinin son halinin beklenen koşullar altında çalışır durumda olduğu aşamadır." }, { id: "THS8-2", text: "Alt sistem tasarımları tamamlandı mı?" }, { id: "THS8-3", text: "Tüm donanım ara yüzleri tanımlandı mı?" }, { id: "THS8-4", text: "Sistem tasarımı tamamlandı mı?" }, { id: "THS8-5", text: "Nihai ürüne entegre edilecek bileşen / alt sistem / sistem donanımlarının kabul testleri tamamlandı mı?" } ] },
+            { level: 9, title: "Son ürün göreve başlamış/tamamlanmış", criteria: [ { id: "THS9-1", text: "Gerçek Ortamda Başarı ile Performans Gösteren Teknoloji/Sistem: Geliştirilen teknoloji/sistemin gerçek ortamında çalışır durumda olduğunun kanıtlandığı aşamadır." }, { id: "THS9-2", text: "Son ürün operasyonel olarak ispatlandı mı?" }, { id: "THS9-3", text: "Son ürünün performansının, operasyonel gereksinimleri karşıladığı doğrulandı mı?" }, { id: "THS9-4", text: "Operasyonel gereksinimlerin karşılandığını gösteren doğrulama kayıtları dokümante edildi mi?" } ] }
         ];
+        const softwareTrlData = [
+            { level: 1, title: "Temel Bilimsel Araştırmalar: Yazılım ürününün matematiksel formülasyonları ve temel özelliklerine ilişkin bilimsel bilginin geliştirildiği aşamadır.", criteria: [ { id: "SW-THS1-1", text: "Yazılım gereksinimleri genel hatlarıyla tamamlandı mı?" }, { id: "SW-THS1-2", text: "Hedeflenen yazılım ürününün temel özellikleri, matematiksel formülasyonunu ve genel algoritmasını destekleyen yayınlar, bilimsel bilgiler elde edildi mi?" }, { id: "SW-THS1-3", text: "Destekleyici/sınayıcı temel prensipler, bilimsel kurallar ve varsayımlar gözlemlendi ve doğrulandı mı?" }, { id: "SW-THS1-4", text: "Gözlem ve doğrulama/sınama araştırmaları sonucunda yazılım mimarisine ilişkin bilimsel bilgi geliştirildi mi?" } ] },
+            { level: 2, title: "Temel Bilimsel Araştırmalar: Yazılım Konsepti: Tasarım: Yazılım konseptinin, temel özelliklerinin ve modelleriyle potansiyel uygulama/alanlarının formüle edildiği aşamadır.", criteria: [ { id: "SW-THS2-1", text: "Hedeflenen yazılımın potansiyel uygulanabilirliği belirlendi mi?" }, { id: "SW-THS2-2", text: "Potansiyel uygulama alanlarının yapılabilirliği (fizibilitesi) doğrulandı mı?" }, { id: "SW-THS2-3", text: "Algoritmaların ve yazılım konseptinin temel özellikleri tanımlandı mı?" }, { id: "SW-THS2-4", text: "Yazılımın üzerinde çalışacağı donanım halihazırda mevcut mu?" } ] },
+            { level: 3, title: "Yazılımın kritik performans özelliklerinin doğrulanması amacıyla, entegre edilmemiş yazılım bileşenleri kullanılarak, kritik işlevselliğin (limited functionality) geliştirildiği aşamadır.", criteria: [ { id: "SW-THS3-1", text: "Yazılımın performans ve etkileşim gereksinim algoritmaları analitik çalışmalarla doğrulandı mı?" }, { id: "SW-THS3-2", text: "Yazılıma ilişkin algoritmaların ana hatları dokümante edildi mi?" }, { id: "SW-THS3-3", text: "İlk yazılım kodlamaları, yazılımın operasyonel gereksinimlerini karşılar doğrulandı mı?" }, { id: "SW-THS3-4", text: "Destekleyici/sınayıcı temel prensipler, bilimsel kurallar ve varsayımlar gözlemlendi ve doğrulandı mı? (Test-Harness)" } ] },
+            { level: 4, title: "Yazılımın kritik bileşenlerinin entegre edildiği, fonksiyonellik bakımından doğrulandığı, birarada çalışabilirliğinin (interoperability) ve sistem mimarisinin geliştirilmeye başlandığı aşamadır.", criteria: [ { id: "SW-THS4-1", text: "Veri formatlarının analizi sağlanarak, her bir modülün yazılım mimari modeliyle uyumluluğu sağlandı mı?" }, { id: "SW-THS4-2", text: "Yazılım, yapay tam ölçek problemleri çözümlüyor veya temsili veri setlerini tam olarak işleyebiliyor mu?" }, { id: "SW-THS4-3", text: "Tüm işlevlerin veya modüllerin geçici entegrasyonunun laboratuvar ortamında fiziki gösterimi yapıldı mı?" }, { id: "SW-THS4-4", text: "Entegre edilen işlevlerin veya modüllerin fonksiyonel olarak doğrulaması yapıldı mı?" }, { id: "SW-THS4-5", text: "Yazılım mimari modelinin birlikte çalışabilirlik(interoperability), ölçeklenebilirlik(scalability) ve gözden geçirilebilirlik(reviewability) konularını test ederek geliştirilmesine başlandı mı?" } ] },
+            { level: 5, title: "Simüle edilmiş (benzetimli) ortamda, uçtan uca yazılım unsurlarının (işlevler/modüller) entegre edildiği, arayüzlerin geliştirildiği ve fiziki gösteriminin yapıldığı aşamadır.", criteria: [ { id: "SW-THS5-1", text: "Her bir işlevin/modülün kodlaması ve hata ayıklaması tamamlandı mı?" }, { id: "SW-THS5-2", text: "İşlevlerin/modüllerin simüle edilmiş ortamda entegrasyonunun fiziki gösterimi yapıldı mı?" }, { id: "SW-THS5-3", text: "Yazılım mimarisi, veritabanı ve arayüzleri tasarısı tamamlandı mı?" } ] },
+            { level: 6, title: "Prototip geliştirme tamamlandı, tam ölçekteki gerçekçi problemler ile test edildiği ve fiziki gösteriminin yapıldığı aşamadır. (Yazılımın ön versiyonu)", criteria: [ { id: "SW-THS6-1", text: "Yazılımın geliştirme ve test belgeleri dokümante edildi mi?" }, { id: "SW-THS6-2", text: "Yazılım algoritmasının (theoric) görevini tam sistem ile entegre edildi mi?" }, { id: "SW-THS6-3", text: "Yazılım geliştirme belgeleri(kurulum, belgeleme, bakım belgeleri, eğitim belgeleri) hazırlanmaya başlandı mı?" }, { id: "SW-THS6-4", text: "Zamanlama kısıtlarının (timing constraints) ve yazılım prototipinin mühendislik fizibilite analizi tamamlanarak fiziki gösterimi yapıldı mı? (Demonstration)" } ] },
+            { level: 7, title: "Gerçek (Operasyonel) ortamda prototipin fiziki gösterimi: Yazılım prototipinde gerçek ortamda tüm fonksiyonların fiziki gösteriminin yapıldığı aşamadır. (Yazılımın çalışır versiyonu)", criteria: [ { id: "SW-THS7-1", text: "Operasyonel fizibilite gösterimi: donatım/yazılım sistemlerinin, tüm kilit işlevlere sahip olacak şekilde entegrasyonu başarılı bir şekilde yapıldı mı?" }, { id: "SW-THS7-2", text: "Yazılım prototipi fiziki gösterim (demonstration) ve test için gereken tüm kilit işlevlere sahip olacak şekilde tamamlandı mı?" }, { id: "SW-THS7-3", text: "Yazılım geliştirme belgeleri kısmen hazırlandı mı?" }, { id: "SW-THS7-4", text: "Entegre edilmiş yazılım prototipinin, gerçek (operasyonel) ortamda fiziki gösterimi yapıldı mı?" } ] },
+            { level: 8, title: "Gerçek ortamda yazılım performans değerlendirmeleri ve belgelendirilmesi: Yazılımın geliştirme sürecinin tamamlandığı, operasyonel olarak ve son kullanıcıya beklenen koşullar altında çalışır durumda olduğu aşamadır. (Yazılımın ilk versiyonu- v 1.0)", criteria: [ { id: "SW-THS8-1", text: "Yazılım teknolojisi operasyonel donanım ve yazılım sistemiyle tam olarak entegre edildi mi?" }, { id: "SW-THS8-2", text: "Yazılım hatalaması tamamlandı mı?" }, { id: "SW-THS8-3", text: "Yazılım geliştirme ve belgeleri tamamlandı mı?" }, { id: "SW-THS8-4", text: "Yazılımın tüm işlevlerinin, simüle edilmiş operasyonel senaryolarda başarılı bir şekilde fiziki gösterimi yapıldı mı?" }, { id: "SW-THS8-5", text: "Teknoloji ve yazılım “Gerçekleme ve Doğrulama” (Verification and Validation) tamamlandı mı?" } ] },
+            { level: 9, title: "Gerçek Ortamda Başarı ile Performans Gösteren Teknoloji/Sistem: Geliştirilen teknoloji/sistemin gerçek ortamda çalışır durumda olduğunun kanıtlandığı aşamadır.", criteria: [ { id: "SW-THS9-1", text: "Yazılım teknolojisi gerçek ortamda ve gerçek senaryolarda donanım ve yazılım sistemleriyle birlikte çalışır durumda mı?" }, { id: "SW-THS9-2", text: "Yazılım teknolojisi gerçek ortamda hazırda,tekrar edilebilir ve yeniden kullanılabilir şekilde mi?" }, { id: "SW-THS9-3", text: "Yazılım mühendisliği desteği mevcut ve sürülebilir durumda mı?" } ] }
+        ];
+        const completionOptions = [ { text: "Başlanmadı", value: 0 }, { text: "Yeni Başlandı", value: 20 }, { text: "Başlandı", value: 40 }, { text: "Az İlerleme", value: 60 }, { text: "Yarısı Tamamlandı", value: 80 }, { text: "Tamamlandı", value: 100 } ];
 
+        // --- DOM Elementleri ---
         const form = document.getElementById('trl-form');
         const levelText = document.getElementById('trl-level-text');
         const titleText = document.getElementById('trl-title-text');
         const progressBar = document.getElementById('progress-bar');
+        const btnEngineering = document.getElementById('btn-engineering');
+        const btnSoftware = document.getElementById('btn-software');
 
-        /**
-         * Formu TRL verilerine göre dinamik olarak oluşturan fonksiyon.
-         */
-        function initializeForm() {
-            trlData.forEach((levelData, levelIndex) => {
-                // Her TRL seviyesi için bir bölüm oluştur
+        let currentData = engineeringTrlData;
+
+        // --- FONKSİYONLAR ---
+
+        function renderSection(data) {
+            currentData = data;
+            form.innerHTML = ''; // Formu temizle
+
+            data.forEach((levelData) => {
                 const section = document.createElement('div');
-                section.className = 'bg-gray-800 p-6 rounded-lg border border-gray-700';
+                section.className = 'bg-gray-800 p-4 md:p-6 rounded-lg border border-gray-700';
+                
+                // Başlık ve Seviye Puanı Alanı
+                section.innerHTML = `
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                        <div class="md:w-2/3">
+                            <h3 class="text-xl font-bold text-cyan-500">TRL ${levelData.level}: ${levelData.title}</h3>
+                        </div>
+                        <div class="w-full md:w-1/3 mt-2 md:mt-0 text-right">
+                             <div class="flex items-center gap-2 justify-end">
+                                <span id="score-${levelData.level}" class="text-lg font-bold">0%</span>
+                                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                                    <div id="progress-${levelData.level}" class="bg-blue-600 h-2.5 rounded-full progress-bar-inner" style="width: 0%"></div>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                `;
 
-                // TRL başlığı
-                const title = document.createElement('h3');
-                title.className = 'text-xl font-bold mb-4 text-cyan-500';
-                title.textContent = `TRL ${levelData.level}: ${levelData.title}`;
-                section.appendChild(title);
-
-                // Kriterler için bir konteyner
                 const criteriaContainer = document.createElement('div');
                 criteriaContainer.className = 'space-y-4';
-                
-                // Her kriter için bir checkbox ve label oluştur
-                levelData.criteria.forEach((criterion, criterionIndex) => {
-                    const criterionId = `trl-${levelIndex}-crit-${criterionIndex}`;
+
+                levelData.criteria.forEach((criterion) => {
+                    const criterionRow = document.createElement('div');
+                    // Geliştirilmiş grid yapısı ile hizalama sorunu çözüldü
+                    criterionRow.className = 'grid grid-cols-1 md:grid-cols-12 gap-x-4 gap-y-2 items-center border-t border-gray-700 pt-4';
+
+                    const criterionText = document.createElement('p');
+                    criterionText.className = 'text-gray-300 text-sm md:col-span-7'; // Metin alanı daha geniş
+                    criterionText.innerHTML = `<span class="font-semibold text-gray-100">${criterion.id}:</span> ${criterion.text}`;
                     
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'flex items-center p-3 rounded-md hover:bg-gray-700 transition-colors';
+                    const radioGroup = document.createElement('div');
+                    radioGroup.className = 'radio-group md:col-span-5'; // Buton grubu
+                    radioGroup.dataset.level = levelData.level;
 
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.id = criterionId;
-                    checkbox.className = 'custom-checkbox mr-4 flex-shrink-0';
-                    checkbox.dataset.level = levelIndex;
-                    checkbox.addEventListener('change', calculateTRL);
+                    completionOptions.forEach(option => {
+                        const radioId = `${criterion.id}-${option.value}`;
+                        const radioInput = document.createElement('input');
+                        radioInput.type = 'radio';
+                        radioInput.id = radioId;
+                        radioInput.name = criterion.id;
+                        radioInput.value = option.value;
+                        radioInput.className = 'radio-input';
+                        radioInput.addEventListener('change', calculateTRL);
+                        
+                        if(option.value === 0) radioInput.checked = true;
 
-                    const label = document.createElement('label');
-                    label.htmlFor = criterionId;
-                    label.textContent = criterion;
-                    label.className = 'text-gray-300 cursor-pointer';
+                        const radioLabel = document.createElement('label');
+                        radioLabel.htmlFor = radioId;
+                        radioLabel.className = 'radio-label';
+                        radioLabel.textContent = option.text;
 
-                    wrapper.appendChild(checkbox);
-                    wrapper.appendChild(label);
-                    criteriaContainer.appendChild(wrapper);
+                        radioGroup.appendChild(radioInput);
+                        radioGroup.appendChild(radioLabel);
+                    });
+
+                    criterionRow.appendChild(criterionText);
+                    criterionRow.appendChild(radioGroup);
+                    criteriaContainer.appendChild(criterionRow);
                 });
 
                 section.appendChild(criteriaContainer);
                 form.appendChild(section);
             });
+            calculateTRL(); // Yeni bölüm render edildikten sonra hesaplama yap
         }
 
-        /**
-         * İşaretlenen checkbox'lara göre TRL seviyesini hesaplayan fonksiyon.
-         * Bir seviyenin tamamlanması için, o seviyenin ve önceki tüm seviyelerin
-         * tüm kriterlerinin işaretlenmiş olması gerekir.
-         */
         function calculateTRL() {
-            let currentTRL = 0;
-            
-            for (let i = 0; i < trlData.length; i++) {
-                const levelIndex = i;
-                const criteriaForLevel = document.querySelectorAll(`input[data-level='${levelIndex}']`);
-                
-                // Belirli bir seviyedeki tüm checkbox'ların işaretli olup olmadığını kontrol et
-                const allChecked = Array.from(criteriaForLevel).every(checkbox => checkbox.checked);
+            let finalTRL = 0;
+            let allPreviousLevelsPassed = true;
 
-                if (allChecked) {
-                    currentTRL = trlData[levelIndex].level;
+            currentData.forEach(levelData => {
+                let sumOfScores = 0;
+                levelData.criteria.forEach(criterion => {
+                    const selectedRadio = document.querySelector(`input[name='${criterion.id}']:checked`);
+                    if(selectedRadio) {
+                        sumOfScores += parseInt(selectedRadio.value, 10);
+                    }
+                });
+
+                const averageScore = levelData.criteria.length > 0 ? (sumOfScores / levelData.criteria.length) : 0;
+                
+                updateLevelUI(levelData.level, averageScore);
+
+                // Kural: >= 80
+                if (allPreviousLevelsPassed && averageScore >= 80) {
+                    finalTRL = levelData.level;
                 } else {
-                    // Eğer bir seviye tamamlanmamışsa, daha ileri seviyelere bakmaya gerek yok
-                    break;
+                    allPreviousLevelsPassed = false;
                 }
-            }
+            });
             
-            updateUI(currentTRL);
+            updateOverallUI(finalTRL);
         }
 
-        /**
-         * Hesaplanan TRL'e göre kullanıcı arayüzünü güncelleyen fonksiyon.
-         * @param {number} level - Hesaplanan TRL seviyesi.
-         */
-        function updateUI(level) {
+        function updateLevelUI(level, score) {
+            const scoreEl = document.getElementById(`score-${level}`);
+            const progressEl = document.getElementById(`progress-${level}`);
+            
+            if(!scoreEl || !progressEl) return;
+
+            scoreEl.textContent = `${Math.round(score)}%`;
+            progressEl.style.width = `${score}%`;
+
+            if (score < 80) progressEl.style.backgroundColor = '#DD6B20'; // orange
+            else progressEl.style.backgroundColor = '#38A169'; // green
+        }
+
+        function updateOverallUI(level) {
             levelText.textContent = `TRL ${level}`;
             
             if (level > 0) {
-                const levelData = trlData[level - 1];
-                titleText.textContent = levelData.title;
+                titleText.textContent = currentData[level - 1].title;
             } else {
-                titleText.textContent = "Değerlendirme için kriterleri işaretleyin.";
+                titleText.textContent = "Değerlendirme için kriterleri puanlayın.";
             }
 
-            // Progress bar'ı güncelle
-            const progressPercentage = (level / trlData.length) * 100;
+            const progressPercentage = (level / currentData.length) * 100;
             progressBar.style.width = `${progressPercentage}%`;
-
-            // Progress bar rengini seviyeye göre değiştir
-            if (level < 4) {
-                progressBar.style.backgroundColor = '#DD6B20'; // orange-500
-            } else if (level < 7) {
-                progressBar.style.backgroundColor = '#D69E2E'; // yellow-500
-            } else {
-                progressBar.style.backgroundColor = '#38A169'; // green-500
-            }
-            
-            // TRL 9 tamamlandığında özel bir renk
-            if (level === 9) {
-                 progressBar.style.backgroundColor = '#38B2AC'; // teal-500
-            }
         }
 
-        // Sayfa yüklendiğinde formu oluştur ve ilk hesaplamayı yap
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeForm();
-            calculateTRL();
+        // --- OLAY DİNLEYİCİLER ---
+        btnEngineering.addEventListener('click', () => {
+            btnEngineering.classList.add('active');
+            btnSoftware.classList.remove('active');
+            renderSection(engineeringTrlData);
         });
 
+        btnSoftware.addEventListener('click', () => {
+            btnSoftware.classList.add('active');
+            btnEngineering.classList.remove('active');
+            renderSection(softwareTrlData);
+        });
+
+        // --- BAŞLANGIÇ ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSection(engineeringTrlData); // Başlangıçta mühendislik bölümünü yükle
+        });
     </script>
 </body>
 </html>
