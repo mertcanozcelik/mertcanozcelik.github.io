@@ -33,7 +33,6 @@
             flex-wrap: nowrap;
             gap: 0.5rem;
             justify-content: flex-start; /* Mobil için sola hizalı */
-            /* md:justify-content: flex-end; /* Geniş ekranda sağa hizalı - Bu satır CSS içinde doğrudan kullanılamaz, Tailwind sınıfı olarak kalmalı */
         }
         @media (min-width: 768px) { /* md breakpoint */
             .radio-group {
@@ -88,6 +87,32 @@
             <button id="btn-software" class="w-1/2 px-4 py-2 rounded-md font-semibold transition-colors duration-300">Yazılım</button>
         </div>
 
+        <!-- Proje Bilgileri -->
+        <div class="bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-700">
+            <h2 class="text-lg font-semibold text-gray-400 mb-4">Proje Bilgileri</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="project-name" class="block text-sm font-medium text-gray-300 mb-1">Proje Adı</label>
+                    <input type="text" id="project-name" class="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="project-manager" class="block text-sm font-medium text-gray-300 mb-1">Proje Sorumlusu</label>
+                    <input type="text" id="project-manager" class="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="project-type" class="block text-sm font-medium text-gray-300 mb-1">Proje Türü</label>
+                    <input type="text" id="project-type" class="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="project-date" class="block text-sm font-medium text-gray-300 mb-1">Tarih</label>
+                    <input type="date" id="project-date" class="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            <button id="export-excel-btn" class="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-md">
+                Veriyi Excel'e Aktar
+            </button>
+        </div>
+
         <!-- Sonuç Alanı -->
         <div id="result-section" class="bg-gray-800 rounded-xl shadow-lg p-6 mb-8 sticky top-4 z-10 border border-gray-700">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -125,15 +150,61 @@
             { level: 9, title: "Son ürün göreve başlamış/tamamlanmış", criteria: [ { id: "THS9-1", text: "Son ürün operasyonel olarak ispatlandı mı?" }, { id: "THS9-2", text: "Son ürünün performansının, operasyonel gereksinimleri karşıladığı doğrulandı mı?" }, { id: "THS9-3", text: "Operasyonel gereksinimlerin karşılandığını gösteren doğrulama kayıtları dokümante edildi mi?" } ] }
         ];
         const softwareTrlData = [
-            { level: 1, title: "Temel Bilimsel Araştırmalar: Yazılım ürününün matematiksel formülasyonları ve temel özelliklerine ilişkin bilimsel bilginin geliştirildiği aşamadır.", criteria: [ { id: "THS1-1", text: "Hedeflenen yazılım ürününün temel özellikleri, matematiksel formülasyonunu ve genel algoritmasını destekleyen yayınlar, bilimsel bilgiler elde edildi mi?" }, { id: "THS1-2", text: "Destekleyici/sınayıcı temel prensipler, bilimsel kurallar ve varsayımlar gözlemlendi ve doğrulandı mı?" }, { id: "THS1-3", text: "Gözlem ve doğrulama/sınama araştırmaları sonucunda yazılım mimarisine ilişkin bilimsel bilgi geliştirildi mi?" } ] },
-            { level: 2, title: "Temel Bilimsel Araştırmalar: Yazılım Konsepti: Tasarım: Yazılım konseptinin, temel özelliklerinin ve modelleriyle potansiyel uygulama/alanlarının formüle edildiği aşamadır.", criteria: [ { id: "THS2-1", text: "Potansiyel uygulama alanlarının yapılabilirliği (fizibilitesi) doğrulandı mı?" }, { id: "THS2-2", text: "Algoritmaların ve yazılım konseptinin temel özellikleri tanımlandı mı?" }, { id: "THS2-3", text: "Yazılımın üzerinde çalışacağı donanım halihazırda mevcut mu?" } ] },
-            { level: 3, title: "Yazılımın kritik performans özelliklerinin doğrulanması amacıyla, entegre edilmemiş yazılım bileşenleri kullanılarak, kritik işlevselliğin (limited functionality) geliştirildiği aşamadır.", criteria: [ { id: "THS3-1", text: "Yazılıma ilişkin algoritmaların ana hatları dokümante edildi mi?" }, { id: "THS3-2", text: "İlk yazılım kodlamaları, yazılımın operasyonel gereksinimlerini karşılar doğrulandı mı?" }, { id: "THS3-3", text: "Destekleyici/sınayıcı temel prensipler, bilimsel kurallar ve varsayımlar gözlemlendi ve doğrulandı mı? (Test-Harness)" } ] },
-            { level: 4, title: "Yazılımın kritik bileşenlerinin entegre edildiği, fonksiyonellik bakımından doğrulandığı, birarada çalışabilirliğinin (interoperability) ve sistem mimarisinin geliştirilmeye başlandığı aşamadır.", criteria: [ { id: "THS4-1", text: "Yazılım, yapay tam ölçek problemleri çözümlüyor veya temsili veri setlerini tam olarak işleyebiliyor mu?" }, { id: "THS4-2", text: "Tüm işlevlerin veya modüllerin geçici entegrasyonunun laboratuvar ortamında fiziki gösterimi yapıldı mı?" }, { id: "THS4-3", text: "Entegre edilen işlevlerin veya modüllerin fonksiyonel olarak doğrulaması yapıldı mı?" }, { id: "THS4-4", text: "Yazılım mimari modelinin birlikte çalışabilirlik(interoperability), ölçeklenebilirlik(scalability) ve gözden geçirilebilirlik(reviewability) konularını test ederek geliştirilmesine başlandı mı?" } ] },
-            { level: 5, title: "Simüle edilmiş (benzetimli) ortamda, uçtan uca yazılım unsurlarının (işlevler/modüller) entegre edildiği, arayüzlerin geliştirildiği ve fiziki gösteriminin yapıldığı aşamadır.", criteria: [ { id: "THS5-1", text: "İşlevlerin/modüllerin simüle edilmiş ortamda entegrasyonunun fiziki gösterimi yapıldı mı?" }, { id: "THS5-2", text: "Yazılım mimarisi, veritabanı ve arayüzleri tasarısı tamamlandı mı?" } ] },
-            { level: 6, title: "Prototip geliştirme tamamlandı, tam ölçekteki gerçekçi problemler ile test edildiği ve fiziki gösteriminin yapıldığı aşamadır. (Yazılımın ön versiyonu)", criteria: [ { id: "THS6-1", text: "Yazılım algoritmasının (theoric) görevini tam sistem ile entegre edildi mi?" }, { id: "THS6-2", text: "Yazılım geliştirme belgeleri(kurulum, belgeleme, bakım belgeleri, eğitim belgeleri) hazırlanmaya başlandı mı?" }, { id: "THS6-3", text: "Zamanlama kısıtlarının (timing constraints) ve yazılım prototipinin mühendislik fizibilite analizi tamamlanarak fiziki gösterimi yapıldı mı? (Demonstration)" } ] },
-            { level: 7, title: "Gerçek (Operasyonel) ortamda prototipin fiziki gösterimi: Yazılım prototipinde gerçek ortamda tüm fonksiyonların fiziki gösteriminin yapıldığı aşamadır. (Yazılımın çalışır versiyonu)", criteria: [ { id: "THS7-1", text: "Yazılım prototipi fiziki gösterim (demonstration) ve test için gereken tüm kilit işlevlere sahip olacak şekilde tamamlandı mı?" }, { id: "THS7-2", text: "Yazılım geliştirme belgeleri kısmen hazırlandı mı?" }, { id: "THS7-3", text: "Entegre edilmiş yazılım prototipinin, gerçek (operasyonel) ortamda fiziki gösterimi yapıldı mı?" } ] },
-            { level: 8, title: "Gerçek ortamda yazılım performans değerlendirmeleri ve belgelendirilmesi: Yazılımın geliştirme sürecinin tamamlandığı, operasyonel olarak ve son kullanıcıya beklenen koşullar altında çalışır durumda olduğu aşamadır. (Yazılımın ilk versiyonu- v 1.0)", criteria: [ { id: "THS8-1", text: "Yazılım hatalaması tamamlandı mı?" }, { id: "THS8-2", text: "Yazılım geliştirme ve belgeleri tamamlandı mı?" }, { id: "THS8-3", text: "Yazılımın tüm işlevlerinin, simüle edilmiş operasyonel senaryolarda başarılı bir şekilde fiziki gösterimi yapıldı mı?" }, { id: "THS8-4", text: "Teknoloji ve yazılım “Gerçekleme ve Doğrulama” (Verification and Validation) tamamlandı mı?" } ] },
-            { level: 9, title: "Gerçek Ortamda Başarı ile Performans Gösteren Teknoloji/Sistem: Geliştirilen teknoloji/sistemin gerçek ortamda çalışır durumda olduğunun kanıtlandığı aşamadır.", criteria: [ { id: "THS9-1", text: "Yazılım teknolojisi gerçek ortamda hazırda,tekrar edilebilir ve yeniden kullanılabilir şekilde mi?" }, { id: "THS9-2", text: "Yazılım mühendisliği desteği mevcut ve sürülebilir durumda mı?" } ] }
+            { level: 1, title: "Temel Bilimsel Araştırmalar: Yazılım ürününün matematiksel formülasyonları ve temel özelliklerine ilişkin bilimsel bilginin geliştirildiği aşamadır.", criteria: [
+                { id: "THS1-1", text: "Yazılım gereksinimleri genel hatlarıyla tamamlandı mı?" },
+                { id: "THS1-2", text: "Hedeflenen yazılım ürününün temel özellikleri, matematiksel formülasyonu ve genel algoritmasını destekleyen yayınlar, bilimsel bilgiler elde edildi mi?" },
+                { id: "THS1-3", text: "Destekleyici/sınayıcı temel prensipler, bilimsel kurallar ve varsayımlar gözlemlendi ve doğrulandı mı?" },
+                { id: "THS1-4", text: "Gözlem ve doğrulama/sınama araştırmaları sonucunda yazılım mimarisine ilişkin bilimsel bilgi geliştirildi mi?" }
+            ] },
+            { level: 2, title: "Yazılım Konsepti: Tasarım: Yazılım konseptinin, temel özelliklerinin ve modelleriyle potansiyel uygulama/alanlarının formüle edildiği aşamadır.", criteria: [
+                { id: "THS2-1", text: "Hedeflenen yazılımın potansiyel uygulanabilirliği belirlendi mi?" },
+                { id: "THS2-2", text: "Potansiyel uygulama alanlarının yapılabilirliği (fizibilitesi) doğrulandı mı?" },
+                { id: "THS2-3", text: "Algoritmaların ve yazılım konseptinin temel özellikleri tanımlandı mı?" },
+                { id: "THS2-4", text: "Yazılımın üzerinde çalışacağı donanım halihazırda mevcut mu?" }
+            ] },
+            { level: 3, title: "Yazılımın kritik performans özelliklerinin doğrulanması amacıyla, entegre edilmemiş yazılım bileşenleri kullanılarak, kritik işlevselliğin (limited functionality) geliştirildiği aşamasıdır.", criteria: [
+                { id: "THS3-1", text: "Yazılımın performans ve etkileşim gereksinim algoritmaları analitik çalışmalarla doğrulandı mı?" },
+                { id: "THS3-2", text: "Yazılıma ilişkin algoritmaların ana hatları dokümante edildi mi?" },
+                { id: "THS3-3", text: "İlk yazılım kodlamaları, yazılımın operasyonel gereksinimlerini karşılar doğrulandı mı?" },
+                { id: "THS3-4", text: "Destekleyici/sınayıcı temel prensipler, bilimsel kurallar ve varsayımlar gözlemlendi ve doğrulandı mı? (Test-Harness)" }
+            ] },
+            { level: 4, title: "Yazılımın kritik bileşenlerinin entegre edildiği, fonksiyonellik bakımından doğrulandığı, birarada çalışabilirliğinin (interoperability) ve sistem mimarisinin geliştirilmeye başlandığı aşamadır.", criteria: [
+                { id: "THS4-1", text: "Veri formatlarının analizi sağlanarak, her bir modülün yazılım mimari modeliyle uyumluluğu sağlandı mı?" },
+                { id: "THS4-2", text: "Yazılım, yapay tam ölçek problemleri çözümlüyor veya temsili veri setlerini tam olarak işleyebiliyor mu?" },
+                { id: "THS4-3", text: "Tüm işlevlerin veya modüllerin geçici entegrasyonunun laboratuvar ortamında fiziki gösterimi yapıldı mı?" },
+                { id: "THS4-4", text: "Entegre edilen işlevlerin veya modüllerin fonksiyonel olarak doğrulaması yapıldı mı?" },
+                { id: "THS4-5", text: "Yazılım mimari modelinin birlikte çalışabilirlik(interoperability), ölçeklenebilirlik(scalability) ve gözden geçirilebilirlik(reviewability) konularını test ederek geliştirilmesine başlandı mı?" }
+            ] },
+            { level: 5, title: "Simüle edilmiş (benzetimli) ortamda, uçtan uca yazılım unsurlarının (işlevler/modüller) entegre edildiği, arayüzlerin geliştirildiği ve fiziki gösteriminin yapıldığı aşamadır.", criteria: [
+                { id: "THS5-1", text: "Her bir işlevin/modülün kodlaması ve hata ayıklaması tamamlandı mı?" },
+                { id: "THS5-2", text: "İşlevlerin/modüllerin simüle edilmiş ortamda uyumlu mevcut sistemler/simülasyonlar ile arayüzleri geliştirildi mi?" },
+                { id: "THS5-3", text: "İşlevlerin/modüllerin simüle edilmiş ortamda entegrasyonunun fiziki gösterimi yapıldı mı?" },
+                { id: "THS5-4", text: "Yazılım mimarisi, veritabanı ve arayüzleri tasarısı tamamlandı mı?" }
+            ] },
+            { level: 6, title: "Prototip geliştirme tamamlandı, tam ölçekteki gerçekçi problemler ile test edildiği ve fiziki gösteriminin yapıldığı aşamadır. (Yazılımın ön versiyonu)", criteria: [
+                { id: "THS6-1", text: "Yazılımın geliştirme ve test belgeleri dokümante edildi mi?" },
+                { id: "THS6-2", text: "Yazılım algoritmasının (theoric) görevini tam sistem ile entegre edildi mi?" },
+                { id: "THS6-3", text: "Yazılım geliştirme belgeleri(kurulum, belgeleme, bakım belgeleri, eğitim belgeleri) hazırlanmaya başlandı mı?" },
+                { id: "THS6-4", text: "Zamanlama kısıtlarının (timing constraints) ve yazılım prototipinin mühendislik fizibilite analizi tamamlanarak fiziki gösterimi yapıldı mı? (Demonstration)" }
+            ] },
+            { level: 7, title: "Gerçek (Operasyonel) ortamda prototipin fiziki gösterimi: Yazılım prototipinde gerçek ortamda tüm fonksiyonların fiziki gösteriminin yapıldığı aşamadır. (Yazılımın çalışır versiyonu)", criteria: [
+                { id: "THS7-1", text: "Operasyonel fizibilite gösterimi: donatım/yazılım sistemlerinin, tüm kilit işlevlere sahip olacak şekilde entegrasyonu başarılı bir şekilde yapıldı mı?" },
+                { id: "THS7-2", text: "Yazılım prototipi fiziki gösterim (demonstration) ve test için gereken tüm kilit işlevlere sahip olacak şekilde tamamlandı mı?" },
+                { id: "THS7-3", text: "Yazılım geliştirme belgeleri kısmen hazırlandı mı?" },
+                { id: "THS7-4", text: "Entegre edilmiş yazılım prototipinin, gerçek (operasyonel) ortamda fiziki gösterimi yapıldı mı?" }
+            ] },
+            { level: 8, title: "Gerçek ortamda yazılım performans değerlendirmeleri ve belgelendirilmesi: Yazılımın geliştirme sürecinin tamamlandığı, operasyonel olarak ve son kullanıcıya beklenen koşullar altında çalışır durumda olduğu aşamadır. (Yazılımın ilk versiyonu- v 1.0)", criteria: [
+                { id: "THS8-1", text: "Yazılım teknolojisi operasyonel donanım ve yazılım sistemiyle tam olarak entegre edildi mi?" },
+                { id: "THS8-2", text: "Yazılım hatalaması tamamlandı mı?" },
+                { id: "THS8-3", text: "Yazılım geliştirme ve belgeleri tamamlandı mı?" },
+                { id: "THS8-4", text: "Yazılımın tüm işlevlerinin, simüle edilmiş operasyonel senaryolarda başarılı bir şekilde fiziki gösterimi yapıldı mı?" },
+                { id: "THS8-5", text: "Teknoloji ve yazılım “Gerçekleme ve Doğrulama” (Verification and Validation) tamamlandı mı?" }
+            ] },
+            { level: 9, title: "Gerçek Ortamda Başarı ile Performans Gösteren Teknoloji/Sistem: Geliştirilen teknoloji/sistemin gerçek ortamında çalışır durumda olduğunun kanıtlandığı aşamadır.", criteria: [
+                { id: "THS9-1", text: "Yazılım teknolojisi gerçek ortamda ve gerçek senaryolarda donanım ve yazılım sistemleriyle birlikte çalışır durumda mı?" },
+                { id: "THS9-2", text: "Yazılım teknolojisi gerçek ortamda hazırda,tekrar edilebilir ve yeniden kullanılabilir şekilde mi?" },
+                { id: "THS9-3", text: "Yazılım mühendisliği desteği mevcut ve sürülebilir durumda mı?" }
+            ] }
         ];
         const completionOptions = [ { text: "Başlanmadı", value: 0 }, { text: "Yeni Başlandı", value: 20 }, { text: "Başlandı", value: 40 }, { text: "Az İlerleme", value: 60 }, { text: "Yarısı Tamamlandı", value: 80 }, { text: "Tamamlandı", value: 100 } ];
 
@@ -144,6 +215,7 @@
         const progressBar = document.getElementById('progress-bar');
         const btnEngineering = document.getElementById('btn-engineering');
         const btnSoftware = document.getElementById('btn-software');
+        const exportExcelBtn = document.getElementById('export-excel-btn');
 
         let currentData = engineeringTrlData;
 
@@ -276,6 +348,44 @@
             progressBar.style.width = `${progressPercentage}%`;
         }
 
+        function exportToExcel() {
+            const projectName = document.getElementById('project-name').value || 'N/A';
+            const projectManager = document.getElementById('project-manager').value || 'N/A';
+            const projectType = document.getElementById('project-type').value || 'N/A';
+            const projectDate = document.getElementById('project-date').value || 'N/A';
+
+            let csvContent = "Proje Adı,Proje Sorumlusu,Proje Türü,Tarih,TRL Seviyesi,TRL Başlığı,Kriter ID,Kriter Metni,Puan\n";
+
+            currentData.forEach(levelData => {
+                levelData.criteria.forEach(criterion => {
+                    const selectedRadio = document.querySelector(`input[name='${criterion.id}']:checked`);
+                    const score = selectedRadio ? selectedRadio.value : '0';
+                    
+                    const row = [
+                        `"${projectName}"`,
+                        `"${projectManager}"`,
+                        `"${projectType}"`,
+                        `"${projectDate}"`,
+                        `"TRL ${levelData.level}"`,
+                        `"${levelData.title}"`,
+                        `"${criterion.id}"`,
+                        `"${criterion.text.replace(/"/g, '""')}"`, // Escape double quotes
+                        score
+                    ];
+                    csvContent += row.join(',') + "\n";
+                });
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'TRL_Degerlendirme.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+
         // --- OLAY DİNLEYİCİLER ---
         btnEngineering.addEventListener('click', () => {
             btnEngineering.classList.add('active');
@@ -288,6 +398,8 @@
             btnEngineering.classList.remove('active');
             renderSection(softwareTrlData);
         });
+
+        exportExcelBtn.addEventListener('click', exportToExcel);
 
         // --- BAŞLANGIÇ ---
         document.addEventListener('DOMContentLoaded', () => {
