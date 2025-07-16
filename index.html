@@ -32,7 +32,7 @@
         /* Custom Radio Button Stilleri */
         .radio-group {
             display: flex;
-            flex-wrap: nowrap;
+            flex-wrap: nowrap; /* Metinlerin kaymasını engeller */
             gap: 0.5rem;
             justify-content: flex-start; /* Mobil için sola hizalı */
         }
@@ -51,7 +51,7 @@
             font-size: 0.75rem;
             transition: all 0.2s ease-in-out;
             text-align: center;
-            white-space: nowrap; /* Buton metinlerinin kaymasını engeller */
+            white-space: normal; /* Metinlerin birden fazla satıra yayılmasına izin verir */
         }
         .radio-label:hover {
             background-color: #4A5568; /* gray-600 */
@@ -149,9 +149,14 @@
                     </div>
                 </div>
             </div>
-            <button id="export-excel-btn" class="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-md">
-                Veriyi Excel'e Aktar
-            </button>
+            <div class="flex flex-col md:flex-row gap-4 mt-6">
+                <button id="export-excel-btn" class="w-full md:w-1/2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-md">
+                    Veriyi Excel'e Aktar
+                </button>
+                <button id="get-suggestions-btn" class="w-full md:w-1/2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-md">
+                    ✨ TRL İlerleme Önerileri Al
+                </button>
+            </div>
         </div>
 
         <!-- Sonuç Alanı -->
@@ -167,6 +172,17 @@
                         <div id="progress-bar" class="bg-cyan-600 h-4 rounded-full progress-bar-inner" style="width: 0%"></div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- TRL İlerleme Önerileri Alanı (Gemini API) -->
+        <div id="suggestions-section" class="bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-700 hidden">
+            <h2 class="text-lg font-semibold text-gray-400 mb-4">✨ TRL İlerleme Önerileri</h2>
+            <div id="suggestions-loading" class="text-center text-gray-500">
+                <p>Öneriler yükleniyor... Lütfen bekleyin.</p>
+            </div>
+            <div id="suggestions-content" class="min-h-[100px] text-gray-300 whitespace-pre-wrap">
+                <!-- Öneriler buraya gelecek -->
             </div>
         </div>
 
@@ -257,8 +273,12 @@
         const btnEngineering = document.getElementById('btn-engineering');
         const btnSoftware = document.getElementById('btn-software');
         const exportExcelBtn = document.getElementById('export-excel-btn');
+        const getSuggestionsBtn = document.getElementById('get-suggestions-btn'); // Yeni buton
         const projectDateInput = document.getElementById('project-date');
         const calendarButton = document.getElementById('calendar-button');
+        const suggestionsSection = document.getElementById('suggestions-section'); // Yeni bölüm
+        const suggestionsLoading = document.getElementById('suggestions-loading'); // Yeni yükleme göstergesi
+        const suggestionsContent = document.getElementById('suggestions-content'); // Yeni öneri alanı
 
 
         let currentData = engineeringTrlData;
@@ -426,7 +446,7 @@
             // Add header row for TRL criteria
             const headerRowIndex = ws_data.length; 
             ws_data.push([
-                "TRL Seviyesi", "TRL Başlığı", "Kriter ID", "Kriter Metni", "Puan", "Kriter Durumu"
+                "TRL Seviyesi", "TRL Başlığı", "Kriter ID", "Kriter Metni", "Puan", "Puan Durumu"
             ]);
 
             let currentRowIndex = ws_data.length; // This will be the starting row for the first TRL criteria
@@ -537,7 +557,7 @@
                 {wch: 15}, // Kriter ID
                 {wch: 80}, // Kriter Metni
                 {wch: 10}, // Puan
-                {wch: 20}  // Kriter Durumu
+                {wch: 20}  // Puan Durumu
             ];
             ws['!cols'] = wscols;
 
@@ -547,6 +567,63 @@
             XLSX.writeFile(wb, 'TRL_Degerlendirme.xlsx');
         }
 
+        // --- Gemini API Entegrasyonu ---
+        async function getSuggestions() {
+            suggestionsSection.classList.remove('hidden');
+            suggestionsLoading.classList.remove('hidden');
+            suggestionsContent.textContent = ''; // Önceki önerileri temizle
+
+            const currentLevelText = levelText.textContent; // örn: "TRL 3"
+            const currentLevelNum = parseInt(currentLevelText.replace('TRL ', ''), 10);
+            const currentLevelTitle = titleText.textContent;
+
+            let nextLevelNum = currentLevelNum + 1;
+            // TRL 9'dan sonrası için öneri olmaması durumu
+            if (nextLevelNum > 9) {
+                suggestionsContent.textContent = "Zaten en yüksek TRL seviyesindesiniz (TRL 9). Daha fazla ilerleme önerisi bulunmamaktadır.";
+                suggestionsLoading.classList.add('hidden');
+                return;
+            }
+
+            const nextLevelData = currentData.find(d => d.level === nextLevelNum);
+            if (!nextLevelData) {
+                suggestionsContent.textContent = "Bir sonraki TRL seviyesi için veri bulunamadı.";
+                suggestionsLoading.classList.add('hidden');
+                return;
+            }
+
+            const prompt = `Mevcut Teknoloji Hazırlık Seviyesi (TRL) ${currentLevelNum}: "${currentLevelTitle}". Bir sonraki seviye olan TRL ${nextLevelNum}: "${nextLevelData.title}" seviyesine ulaşmak için yapılması gereken adımları ve dikkat edilmesi gereken noktaları detaylı bir şekilde listeler misin? Bu adımlar, mevcut seviyenin gereksinimlerini tamamlamayı ve bir sonraki seviyenin kriterlerini karşılamayı içermelidir. Yanıtını maddeler halinde ve Türkçe olarak yaz.`;
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // Canvas çalışma zamanında bu anahtarı sağlayacak
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    suggestionsContent.textContent = text;
+                } else {
+                    suggestionsContent.textContent = "Öneriler alınırken bir sorun oluştu veya boş yanıt döndü.";
+                    console.error("Gemini API'den beklenen yanıt yapısı gelmedi:", result);
+                }
+            } catch (error) {
+                suggestionsContent.textContent = `Öneriler alınırken hata oluştu: ${error.message}`;
+                console.error("Gemini API çağrısında hata:", error);
+            } finally {
+                suggestionsLoading.classList.add('hidden');
+            }
+        }
 
         // --- OLAY DİNLEYİCİLER ---
         btnEngineering.addEventListener('click', () => {
@@ -562,6 +639,7 @@
         });
 
         exportExcelBtn.addEventListener('click', exportToExcel);
+        getSuggestionsBtn.addEventListener('click', getSuggestions); // Yeni buton için olay dinleyici
 
         // Add event listener for the custom calendar button
         calendarButton.addEventListener('click', () => {
