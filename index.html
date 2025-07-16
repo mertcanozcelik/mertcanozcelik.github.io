@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- SheetJS (xlsx) CDN for Excel export -->
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -70,6 +72,42 @@
         .radio-input[value="60"]:checked + .radio-label { background-color: #D69E2E; } /* yellow-500 */
         .radio-input[value="80"]:checked + .radio-label { background-color: #38A169; } /* green-600 */
         .radio-input[value="100"]:checked + .radio-label { background-color: #3182CE; } /* blue-600 */
+
+        /* Hide default calendar icon for date input */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+            width: 100%; /* Make it fill the input to be clickable */
+            height: 100%;
+            cursor: pointer;
+            position: absolute; /* Position over the input */
+            top: 0;
+            left: 0;
+        }
+        input[type="date"] {
+            position: relative; /* Ensure it's positioned for the indicator */
+            padding-right: 2.5rem; /* Make space for the custom icon */
+        }
+        .date-input-wrapper {
+            position: relative;
+        }
+        .calendar-button {
+            position: absolute;
+            right: 0.5rem; /* Adjust as needed */
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: white; /* White background for the button */
+            border: none;
+            padding: 0.3rem 0.5rem;
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: pointer;
+            font-size: 1.25rem; /* Adjust emoji size */
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: calc(100% - 0.5rem); /* Adjust height to fit input */
+            margin-right: 0.25rem; /* Small margin from the right edge */
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white antialiased">
@@ -105,7 +143,10 @@
                 </div>
                 <div>
                     <label for="project-date" class="block text-sm font-medium text-gray-300 mb-1">Tarih</label>
-                    <input type="date" id="project-date" class="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
+                    <div class="date-input-wrapper w-full">
+                        <input type="date" id="project-date" class="w-full p-2 rounded-md bg-gray-700 border border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
+                        <button type="button" id="calendar-button" class="calendar-button">📅</button>
+                    </div>
                 </div>
             </div>
             <button id="export-excel-btn" class="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-md">
@@ -157,14 +198,14 @@
                 { id: "THS1-4", text: "Gözlem ve doğrulama/sınama araştırmaları sonucunda yazılım mimarisine ilişkin bilimsel bilgi geliştirildi mi?" }
             ] },
             { level: 2, title: "Yazılım Konsepti: Tasarım: Yazılım konseptinin, temel özelliklerinin ve modelleriyle potansiyel uygulama/alanlarının formüle edildiği aşamadır.", criteria: [
-                { id: "THS2-1", text: "Hedeflenen yazılımın potansiyel uygulanabilirliği belirlendi mi?" },
+                { id: "THS2-1", text: "Hedeflenen yazılımın potansiyel uygulanabilirliği belirlendi mı?" },
                 { id: "THS2-2", text: "Potansiyel uygulama alanlarının yapılabilirliği (fizibilitesi) doğrulandı mı?" },
                 { id: "THS2-3", text: "Algoritmaların ve yazılım konseptinin temel özellikleri tanımlandı mı?" },
                 { id: "THS2-4", text: "Yazılımın üzerinde çalışacağı donanım halihazırda mevcut mu?" }
             ] },
             { level: 3, title: "Yazılımın kritik performans özelliklerinin doğrulanması amacıyla, entegre edilmemiş yazılım bileşenleri kullanılarak, kritik işlevselliğin (limited functionality) geliştirildiği aşamasıdır.", criteria: [
                 { id: "THS3-1", text: "Yazılımın performans ve etkileşim gereksinim algoritmaları analitik çalışmalarla doğrulandı mı?" },
-                { id: "THS3-2", text: "Yazılıma ilişkin algoritmaların ana hatları dokümante edildi mi?" },
+                { id: "THS3-2", text: "Yazılıma ilişkin algoritmaların ana hatları dokümante edildi mı?" },
                 { id: "THS3-3", text: "İlk yazılım kodlamaları, yazılımın operasyonel gereksinimlerini karşılar doğrulandı mı?" },
                 { id: "THS3-4", text: "Destekleyici/sınayıcı temel prensipler, bilimsel kurallar ve varsayımlar gözlemlendi ve doğrulandı mı? (Test-Harness)" }
             ] },
@@ -216,6 +257,9 @@
         const btnEngineering = document.getElementById('btn-engineering');
         const btnSoftware = document.getElementById('btn-software');
         const exportExcelBtn = document.getElementById('export-excel-btn');
+        const projectDateInput = document.getElementById('project-date');
+        const calendarButton = document.getElementById('calendar-button');
+
 
         let currentData = engineeringTrlData;
 
@@ -354,35 +398,43 @@
             const projectType = document.getElementById('project-type').value || 'N/A';
             const projectDate = document.getElementById('project-date').value || 'N/A';
 
-            let csvContent = "Proje Adı,Proje Sorumlusu,Proje Türü,Tarih,TRL Seviyesi,TRL Başlığı,Kriter ID,Kriter Metni,Puan\n";
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            const ws_data = [];
 
+            // Add project information as the first few rows
+            ws_data.push(["Proje Adı:", projectName]);
+            ws_data.push(["Proje Sorumlusu:", projectManager]);
+            ws_data.push(["Proje Türü:", projectType]);
+            ws_data.push(["Tarih:", projectDate]);
+            ws_data.push([]); // Empty row for separation
+            
+            // Add header row for TRL criteria
+            ws_data.push([
+                "TRL Seviyesi", "TRL Başlığı", "Kriter ID", "Kriter Metni", "Puan"
+            ]);
+
+            // Add TRL data rows
             currentData.forEach(levelData => {
                 levelData.criteria.forEach(criterion => {
                     const selectedRadio = document.querySelector(`input[name='${criterion.id}']:checked`);
                     const score = selectedRadio ? selectedRadio.value : '0';
                     
-                    const row = [
-                        `"${projectName}"`,
-                        `"${projectManager}"`,
-                        `"${projectType}"`,
-                        `"${projectDate}"`,
-                        `"TRL ${levelData.level}"`,
-                        `"${levelData.title}"`,
-                        `"${criterion.id}"`,
-                        `"${criterion.text.replace(/"/g, '""')}"`, // Escape double quotes
+                    ws_data.push([
+                        `TRL ${levelData.level}`,
+                        levelData.title,
+                        criterion.id,
+                        criterion.text,
                         score
-                    ];
-                    csvContent += row.join(',') + "\n";
+                    ]);
                 });
             });
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute('download', 'TRL_Degerlendirme.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, "TRL Değerlendirme");
+
+            // Write file
+            XLSX.writeFile(wb, 'TRL_Degerlendirme.xlsx');
         }
 
 
@@ -400,6 +452,14 @@
         });
 
         exportExcelBtn.addEventListener('click', exportToExcel);
+
+        // Add event listener for the custom calendar button
+        calendarButton.addEventListener('click', () => {
+            projectDateInput.showPicker(); // Modern browsers
+            // Fallback for older browsers if showPicker() is not supported,
+            // though direct focus might not always open the picker.
+            // projectDateInput.focus(); 
+        });
 
         // --- BAŞLANGIÇ ---
         document.addEventListener('DOMContentLoaded', () => {
