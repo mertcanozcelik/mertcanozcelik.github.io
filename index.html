@@ -195,7 +195,7 @@
                 { id: "THS1-1", text: "Yazılım gereksinimleri genel hatlarıyla tamamlandı mı?" },
                 { id: "THS1-2", text: "Hedeflenen yazılım ürününün temel özellikleri, matematiksel formülasyonu ve genel algoritmasını destekleyen yayınlar, bilimsel bilgiler elde edildi mi?" },
                 { id: "THS1-3", text: "Destekleyici/sınayıcı temel prensipler, bilimsel kurallar ve varsayımlar gözlemlendi ve doğrulandı mı?" },
-                { id: "THS1-4", text: "Gözlem ve doğrulama/sınama araştırmaları sonucunda yazılım mimarisine ilişkin bilimsel bilgi geliştirildi mi?" }
+                { id: "THS1-4", text: "Gözlem ve doğrulama/sınama araştırmaları sonucunda yazılım mimarisine ilişkin bilimsel bilgi geliştirildi mı?" }
             ] },
             { level: 2, title: "Yazılım Konsepti: Tasarım: Yazılım konseptinin, temel özelliklerinin ve modelleriyle potansiyel uygulama/alanlarının formüle edildiği aşamadır.", criteria: [
                 { id: "THS2-1", text: "Hedeflenen yazılımın potansiyel uygulanabilirliği belirlendi mı?" },
@@ -211,7 +211,7 @@
             ] },
             { level: 4, title: "Yazılımın kritik bileşenlerinin entegre edildiği, fonksiyonellik bakımından doğrulandığı, birarada çalışabilirliğinin (interoperability) ve sistem mimarisinin geliştirilmeye başlandığı aşamadır.", criteria: [
                 { id: "THS4-1", text: "Veri formatlarının analizi sağlanarak, her bir modülün yazılım mimari modeliyle uyumluluğu sağlandı mı?" },
-                { id: "THS4-2", text: "Yazılım, yapay tam ölçek problemleri çözümlüyor veya temsili veri setlerini tam olarak işleyebiliyor mu?" },
+                { id: "THS4-2", text: "Yazılım, yapay tam ölçek problemleri çözümlüyor veya temsili veri setlerini tam olarak işleyebiliyor mı?" },
                 { id: "THS4-3", text: "Tüm işlevlerin veya modüllerin geçici entegrasyonunun laboratuvar ortamında fiziki gösterimi yapıldı mı?" },
                 { id: "THS4-4", text: "Entegre edilen işlevlerin veya modüllerin fonksiyonel olarak doğrulaması yapıldı mı?" },
                 { id: "THS4-5", text: "Yazılım mimari modelinin birlikte çalışabilirlik(interoperability), ölçeklenebilirlik(scalability) ve gözden geçirilebilirlik(reviewability) konularını test ederek geliştirilmesine başlandı mı?" }
@@ -235,7 +235,7 @@
                 { id: "THS7-4", text: "Entegre edilmiş yazılım prototipinin, gerçek (operasyonel) ortamda fiziki gösterimi yapıldı mı?" }
             ] },
             { level: 8, title: "Gerçek ortamda yazılım performans değerlendirmeleri ve belgelendirilmesi: Yazılımın geliştirme sürecinin tamamlandığı, operasyonel olarak ve son kullanıcıya beklenen koşullar altında çalışır durumda olduğu aşamadır. (Yazılımın ilk versiyonu- v 1.0)", criteria: [
-                { id: "THS8-1", text: "Yazılım teknolojisi operasyonel donanım ve yazılım sistemiyle tam olarak entegre edildi mi?" },
+                { id: "THS8-1", text: "Yazılım teknolojisi operasyonel donanım ve yazılım sistemiyle tam olarak entegre edildi mı?" },
                 { id: "THS8-2", text: "Yazılım hatalaması tamamlandı mı?" },
                 { id: "THS8-3", text: "Yazılım geliştirme ve belgeleri tamamlandı mı?" },
                 { id: "THS8-4", text: "Yazılımın tüm işlevlerinin, simüle edilmiş operasyonel senaryolarda başarılı bir şekilde fiziki gösterimi yapıldı mı?" },
@@ -465,20 +465,81 @@
                 ws['!merges'] = merges;
             }
 
-            // Apply styles to merged cells (specifically the top-left cell of the merge range)
-            merges.forEach(merge => {
-                const cellAddress = XLSX.utils.encode_cell({r: merge.s.r, c: merge.s.c});
-                if (!ws[cellAddress]) {
-                    ws[cellAddress] = {}; // Ensure the cell object exists
+            // Define styles
+            const headerStyle = {
+                font: { bold: true, color: { rgb: "FFFFFFFF" } }, // White text
+                fill: { fgColor: { rgb: "FF3B82F6" } }, // Tailwind blue-500
+                alignment: { vertical: "center", horizontal: "center", wrapText: true },
+                border: { // Add borders to header cells
+                    top: { style: "thin", color: { rgb: "FFD1D5DB" } },
+                    bottom: { style: "thin", color: { rgb: "FFD1D5DB" } },
+                    left: { style: "thin", color: { rgb: "FFD1D5DB" } },
+                    right: { style: "thin", color: { rgb: "FFD1D5DB" } }
                 }
-                ws[cellAddress].s = {
-                    alignment: {
-                        vertical: "center", // Middle align
-                        horizontal: "center", // Center align
-                        wrapText: true // Wrap text for better readability in merged cells
+            };
+
+            const mergedCellStyle = {
+                alignment: {
+                    vertical: "center", // Middle align
+                    horizontal: "center", // Center align
+                    wrapText: true
+                },
+                fill: { fgColor: { rgb: "FF60A5FA" } }, // A lighter blue for merged cells
+                font: { bold: true, color: { rgb: "FFFFFFFF" } }, // White bold text
+                border: { // Add borders to merged cells
+                    top: { style: "thin", color: { rgb: "FFD1D5DB" } },
+                    bottom: { style: "thin", color: { rgb: "FFD1D5DB" } },
+                    left: { style: "thin", color: { rgb: "FFD1D5DB" } },
+                    right: { style: "thin", color: { rgb: "FFD1D5DB" } }
+                }
+            };
+
+            const dataCellStyle = {
+                alignment: { vertical: "top", wrapText: true }, // Default alignment for data cells
+                border: { // Add borders to all data cells
+                    top: { style: "thin", color: { rgb: "FFD1D5DB" } },
+                    bottom: { style: "thin", color: { rgb: "FFD1D5DB" } },
+                    left: { style: "thin", color: { rgb: "FFD1D5DB" } },
+                    right: { style: "thin", color: { rgb: "FFD1D5DB" } }
+                }
+            };
+
+            // Apply header style
+            for (let C = 0; C < ws_data[headerRowIndex].length; ++C) {
+                const cellAddress = XLSX.utils.encode_cell({r: headerRowIndex, c: C});
+                if (!ws[cellAddress]) ws[cellAddress] = {};
+                ws[cellAddress].s = headerStyle;
+            }
+
+            // Apply styles to merged cells and all data cells
+            for (let R = headerRowIndex + 1; R < ws_data.length; ++R) {
+                for (let C = 0; C < ws_data[R].length; ++C) {
+                    const cellAddress = XLSX.utils.encode_cell({r: R, c: C});
+                    if (!ws[cellAddress]) ws[cellAddress] = {};
+                    ws[cellAddress].s = dataCellStyle; // Apply default data cell style
+
+                    // Check if this cell is the top-left of a merged range and apply specific style
+                    const isMergedCell = merges.some(merge => {
+                        return merge.s.r === R && merge.s.c === C;
+                    });
+
+                    if (isMergedCell) {
+                        // Apply merged cell style to the top-left cell of the merge
+                        ws[cellAddress].s = mergedCellStyle;
                     }
-                };
-            });
+                }
+            }
+
+            // Set column widths for better readability
+            const wscols = [
+                {wch: 15}, // TRL Seviyesi
+                {wch: 50}, // TRL Başlığı
+                {wch: 15}, // Kriter ID
+                {wch: 80}, // Kriter Metni
+                {wch: 10}, // Puan
+                {wch: 20}  // Puan Durumu
+            ];
+            ws['!cols'] = wscols;
 
             XLSX.utils.book_append_sheet(wb, ws, "TRL Değerlendirme");
 
