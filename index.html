@@ -397,25 +397,37 @@
             const projectManager = document.getElementById('project-manager').value || 'N/A';
             const projectType = document.getElementById('project-type').value || 'N/A';
             const projectDate = document.getElementById('project-date').value || 'N/A';
+            const currentTRLLevel = levelText.textContent; // "TRL X"
+            const currentTRLTitle = titleText.textContent; // "Başlık metni"
 
             // Create workbook and worksheet
             const wb = XLSX.utils.book_new();
             const ws_data = [];
+            const merges = []; // Array to store merge ranges
 
-            // Add project information as the first few rows
+            // Add project information
             ws_data.push(["Proje Adı:", projectName]);
             ws_data.push(["Proje Sorumlusu:", projectManager]);
             ws_data.push(["Proje Türü:", projectType]);
             ws_data.push(["Tarih:", projectDate]);
             ws_data.push([]); // Empty row for separation
-            
+
+            // Add calculated TRL Level and Title
+            ws_data.push(["Hesaplanan TRL Seviyesi:", currentTRLLevel]);
+            ws_data.push(["Hesaplanan TRL Başlığı:", currentTRLTitle]);
+            ws_data.push([]); // Empty row for separation
+
             // Add header row for TRL criteria
+            const headerRowIndex = ws_data.length; 
             ws_data.push([
                 "TRL Seviyesi", "TRL Başlığı", "Kriter ID", "Kriter Metni", "Puan"
             ]);
 
-            // Add TRL data rows
+            let currentRowIndex = ws_data.length; // This will be the starting row for the first TRL criteria
+
+            // Add TRL data rows and define merges
             currentData.forEach(levelData => {
+                const startRowForLevel = currentRowIndex;
                 levelData.criteria.forEach(criterion => {
                     const selectedRadio = document.querySelector(`input[name='${criterion.id}']:checked`);
                     const score = selectedRadio ? selectedRadio.value : '0';
@@ -427,10 +439,24 @@
                         criterion.text,
                         score
                     ]);
+                    currentRowIndex++;
                 });
+                const endRowForLevel = currentRowIndex - 1;
+
+                // Add merge directives for TRL Level and TRL Title columns for this level
+                if (startRowForLevel <= endRowForLevel) { // Only merge if there are criteria for this level
+                    merges.push({ s: { r: startRowForLevel, c: 0 }, e: { r: endRowForLevel, c: 0 } }); // Merge TRL Seviyesi column (column A)
+                    merges.push({ s: { r: startRowForLevel, c: 1 }, e: { r: endRowForLevel, c: 1 } }); // Merge TRL Başlığı column (column B)
+                }
             });
 
             const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            
+            // Apply merges to the worksheet
+            if (merges.length > 0) {
+                ws['!merges'] = merges;
+            }
+
             XLSX.utils.book_append_sheet(wb, ws, "TRL Değerlendirme");
 
             // Write file
