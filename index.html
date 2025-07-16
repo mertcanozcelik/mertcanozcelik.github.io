@@ -426,7 +426,7 @@
             // Add header row for TRL criteria
             const headerRowIndex = ws_data.length; 
             ws_data.push([
-                "TRL Seviyesi", "TRL Başlığı", "Kriter ID", "Kriter Metni", "Puan", "Puan Durumu"
+                "TRL Seviyesi", "TRL Başlığı", "Kriter ID", "Kriter Metni", "Puan", "Kriter Durumu"
             ]);
 
             let currentRowIndex = ws_data.length; // This will be the starting row for the first TRL criteria
@@ -537,7 +537,7 @@
                 {wch: 15}, // Kriter ID
                 {wch: 80}, // Kriter Metni
                 {wch: 10}, // Puan
-                {wch: 20}  // Puan Durumu
+                {wch: 20}  // Kriter Durumu
             ];
             ws['!cols'] = wscols;
 
