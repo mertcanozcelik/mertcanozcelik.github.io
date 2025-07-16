@@ -400,6 +400,12 @@
             const currentTRLLevel = levelText.textContent; // "TRL X"
             const currentTRLTitle = titleText.textContent; // "Başlık metni"
 
+            // Create a map for quick lookup of completion option text
+            const scoreTextMap = {};
+            completionOptions.forEach(option => {
+                scoreTextMap[option.value] = option.text;
+            });
+
             // Create workbook and worksheet
             const wb = XLSX.utils.book_new();
             const ws_data = [];
@@ -420,7 +426,7 @@
             // Add header row for TRL criteria
             const headerRowIndex = ws_data.length; 
             ws_data.push([
-                "TRL Seviyesi", "TRL Başlığı", "Kriter ID", "Kriter Metni", "Puan"
+                "TRL Seviyesi", "TRL Başlığı", "Kriter ID", "Kriter Metni", "Puan", "Puan Durumu"
             ]);
 
             let currentRowIndex = ws_data.length; // This will be the starting row for the first TRL criteria
@@ -430,14 +436,16 @@
                 const startRowForLevel = currentRowIndex;
                 levelData.criteria.forEach(criterion => {
                     const selectedRadio = document.querySelector(`input[name='${criterion.id}']:checked`);
-                    const score = selectedRadio ? selectedRadio.value : '0';
-                    
+                    const score = selectedRadio ? parseInt(selectedRadio.value, 10) : 0;
+                    const scoreText = scoreTextMap[score] || ''; // Get the text representation
+
                     ws_data.push([
                         `TRL ${levelData.level}`,
                         levelData.title,
                         criterion.id,
                         criterion.text,
-                        score
+                        score,
+                        scoreText
                     ]);
                     currentRowIndex++;
                 });
@@ -456,6 +464,21 @@
             if (merges.length > 0) {
                 ws['!merges'] = merges;
             }
+
+            // Apply styles to merged cells (specifically the top-left cell of the merge range)
+            merges.forEach(merge => {
+                const cellAddress = XLSX.utils.encode_cell({r: merge.s.r, c: merge.s.c});
+                if (!ws[cellAddress]) {
+                    ws[cellAddress] = {}; // Ensure the cell object exists
+                }
+                ws[cellAddress].s = {
+                    alignment: {
+                        vertical: "center", // Middle align
+                        horizontal: "center", // Center align
+                        wrapText: true // Wrap text for better readability in merged cells
+                    }
+                };
+            });
 
             XLSX.utils.book_append_sheet(wb, ws, "TRL Değerlendirme");
 
