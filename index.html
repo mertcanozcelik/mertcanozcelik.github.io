@@ -23,6 +23,8 @@
         .section-selector button {
             background-color: #374151; /* gray-700 */
             color: #D1D5DB; /* gray-300 */
+            font-size: 1.125rem; /* text-lg */
+            text-align: center;
         }
         .section-selector button.active {
             background-color: #3B82F6; /* blue-500 */
@@ -150,12 +152,10 @@
                 </div>
             </div>
             <div class="flex flex-col md:flex-row gap-4 mt-6">
-                <button id="export-excel-btn" class="w-full md:w-1/2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-md">
+                <button id="export-excel-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-md text-lg">
                     Veriyi Excel'e Aktar
                 </button>
-                <button id="get-suggestions-btn" class="w-full md:w-1/2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-md">
-                    ✨ TRL İlerleme Önerileri Al
-                </button>
+                <!-- TRL İlerleme Önerileri Al butonu kaldırıldı -->
             </div>
         </div>
 
@@ -175,16 +175,16 @@
             </div>
         </div>
 
-        <!-- TRL İlerleme Önerileri Alanı (Gemini API) -->
-        <div id="suggestions-section" class="bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-700 hidden">
+        <!-- TRL İlerleme Önerileri Alanı (Gemini API) kaldırıldı -->
+        <!-- <div id="suggestions-section" class="bg-gray-800 rounded-xl shadow-lg p-6 mb-8 border border-gray-700 hidden">
             <h2 class="text-lg font-semibold text-gray-400 mb-4">✨ TRL İlerleme Önerileri</h2>
             <div id="suggestions-loading" class="text-center text-gray-500">
                 <p>Öneriler yükleniyor... Lütfen bekleyin.</p>
             </div>
             <div id="suggestions-content" class="min-h-[100px] text-gray-300 whitespace-pre-wrap">
-                <!-- Öneriler buraya gelecek -->
+                
             </div>
-        </div>
+        </div> -->
 
         <!-- Kriterler Formu -->
         <div id="trl-form" class="space-y-6">
@@ -198,11 +198,11 @@
         const engineeringTrlData = [
             { level: 1, title: "Temel ilkeler gözlemlenmiş ve raporlanmış", criteria: [ { id: "THS1-1", text: "Yeni malzeme ya da teknolojinin temel karakteristikleri tanımlandı mı?" }, { id: "THS1-2", text: "Mühendislik ekibinde görev alan ilgili teknoloji uzmanları teknoloji hakkında bilgilendirilip teknolojinin sağlayacağı fayda ve riskler anlaşıldı mı?" }, { id: "THS1-3", text: "Benzer teknolojiler, yeni mühendislik yetenekleri, yöntemleri ve araçlarının geliştirilmesine olanak sağlandı mı?" }, { id: "THS1-4", text: "Teknolojinin geliştirilme ve ölçeklenme süresince riskler tanımlandı mı?" }, { id: "THS1-5", text: "Teknoloji çalışmasını tetikleyen gereksinimler tanımlandı mı?" } ] },
             { level: 2, title: "Teknoloji kavramı ve / veya uygulaması formüle edilmiş", criteria: [ { id: "THS2-1", text: "Teknolojinin kullanım alanlarındaki rekabetçilerine (yeni yetkinlikler, metot, araç vb.) ve tedarik zincirine etkisinin ön değerlendirmesi yapıldı mı?" }, { id: "THS2-2", text: "Potansiyel uygulamalar tanımlandı mı?" }, { id: "THS2-3", text: "Ön performans tahminleri yapıldı mı?" }, { id: "THS2-4", text: "Ön analitik çalışmalar temel kavramı doğruladı mı?" } ] },
-            { level: 3, title: "Kavramın analitik ve deneysel olarak kritik işlev ve / veya karakteristik (ayırt edici özellik) olarak ispatlanması", criteria: [ { id: "THS3-1", text: "Kavram/uygulamanın kritik fonksiyonları/bileşenleri belirlendi mi?" }, { id: "THS3-2", text: "Anahtar parametreler için ön performans metrikleri saptandı mı?" }, { id: "THS3-3", text: "Malzeme ve sürecin ürüne ve endüstriyel ortama entegrasyonunun ön değerlendirmesi yapıldı mı?" }, { id: "THS3-4", text: "Teknolojik ürünün entegre edeceği ürün Grubu’nun uyumu sağlandı mı?" } ] },
+            { level: 3, title: "Kavramın analitik ve deneysel olarak kritik işlev ve / veya karakteristik (ayırt edici özellik) olarak ispatlanması", criteria: [ { id: "THS3-1", text: "Kavram/uygulamanın kritik fonksiyonları/bileşenleri belirlendi mı?" }, { id: "THS3-2", text: "Anahtar parametreler için ön performans metrikleri saptandı mı?" }, { id: "THS3-3", text: "Malzeme ve sürecin ürüne ve endüstriyel ortama entegrasyonunun ön değerlendirmesi yapıldı mı?" }, { id: "THS3-4", text: "Teknolojik ürünün entegre edeceği ürün Grubu’nun uyumu sağlandı mı?" } ] },
             { level: 4, title: "Düşük sadakatli bileşen veya deney modelinin temel fonksiyonları laboratuvar ortamında geçerli kılınması", criteria: [ { id: "THS4-1", text: "Kavram / uygulama, detaylı sistem / alt sistem / bileşen seviyesinde deney platformu tasarımına çevrildi mi?" }, { id: "THS4-2", text: "Modelleme ve simülasyon ile laboratuvar test ölçüsü performans tahminleri değerlendirildi mi?" }, { id: "THS4-3", text: "Laboratuvar testleri için performans metrikleri oluşturuldu mu? İlgili test ortamı tanımlandı mı?" } ] },
-            { level: 5, title: "Orta sadakatli bileşen veya deney modeli elverişli edilen işletim ortamında doğrulanmış", criteria: [ { id: "THS5-1", text: "Sistem arayüz gereksinimleri belirlendi mi?" }, { id: "THS5-2", text: "Daha sonraki geliştirme fazları için sistem seviyesi performans tahminleri yapıldı mı?" }, { id: "THS5-3", text: "Orta sadakat seviyesindeki deney modelinin gösterimi yapıldı mı?" }, { id: "THS5-4", text: "Boyutlandırılamayan, lineer olmayan hedeflenen uygulama için ilgili tasarım prensipleri doğrulandı mı?" } ] },
+            { level: 5, title: "Orta sadakatli bileşen veya deney modelinin elverişli edilen işletim ortamında doğrulanmış", criteria: [ { id: "THS5-1", text: "Sistem arayüz gereksinimleri belirlendi mi?" }, { id: "THS5-2", text: "Daha sonraki geliştirme fazları için sistem seviyesi performans tahminleri yapıldı mı?" }, { id: "THS5-3", text: "Orta sadakat seviyesindeki deney modelinin gösterimi yapıldı mı?" }, { id: "THS5-4", text: "Boyutlandırılamayan, lineer olmayan hedeflenen uygulama için ilgili tasarım prensipleri doğrulandı mı?" } ] },
             { level: 6, title: "Tam sistem prototipinin benzetimli işletim ortamında çalıştırılarak kritik çevre koşullarında çalıştığının gösterimi yapılmış", criteria: [ { id: "THS6-1", text: "Operasyonel ortama yakın son haline getirildi mi? Kritik noktalar belirlendi mi?" }, { id: "THS6-2", text: "Yüksek sadakatli tam ölçekli prototip bütün kritik ölçek gereksinimlerini sağlayacak şekilde imal edildi mi?" }, { id: "THS6-3", text: "Tam ölçekli prototip ilgili ortamda çalıştırılarak kritik çevre koşullarında çalıştığının gösterimi yapıldı mı?" } ] },
-            { level: 7, title: "Sistem prototipinin gerçek operasyon ortamında çalıştığının gösterimi yapılmış", criteria: [ { id: "THS7-1", text: "Sistem tasarımının temeli (Baseline) oluşturuldu mu?" }, { id: "THS7-2", text: "Prototipte / pilot sistemde modellenen bileşenler, üretimde kullanılacak bileşenleri temsil edecek şekilde yükseltildi mi?" }, { id: "THS7-3", text: "Tasarım, tüm kritik ölçekleri dikkate alacak şekilde yapıldı mı?" }, { id: "THS7-4", text: "Entegre mühendislik modeli ya da ölçekli prototip ünitesi tüm kritik ölçekleri ve dış ara yüzleri içerecek şekilde üretildi mi?" }, { id: "THS7-5", text: "Entegre prototip ünitesinin operasyonel ortamda başarıyla görev yaptığı gösterildi mi?" }, { id: "THS7-6", text: "Entegre edilmiş prototipin operasyonel ortamda risk gösterimi yapıldı mı?" } ] },
+            { level: 7, title: "Sistem prototipinin gerçek operasyon ortamında çalıştığının gösterimi yapılmış", criteria: [ { id: "THS7-1", text: "Operasyonel fizibilite gösterimi: donatım/yazılım sistemlerinin, tüm kilit işlevlere sahip olacak şekilde entegrasyonu başarılı bir şekilde yapıldı mı?" }, { id: "THS7-2", text: "Yazılım prototipi fiziki gösterim (demonstration) ve test için gereken tüm kilit işlevlere sahip olacak şekilde tamamlandı mı?" }, { id: "THS7-3", text: "Yazılım geliştirme belgeleri kısmen hazırlandı mı?" }, { id: "THS7-4", text: "Entegre edilmiş yazılım prototipinin, gerçek (operasyonel) ortamda fiziki gösterimi yapıldı mı?" } ] },
             { level: 8, title: "Son ürünün nihai konfigürasyonu ile planlı operasyonel sistem ve platformda başarı ile çalıştığının gösterimi test ve analizler ile gerçekleştirilmiş", criteria: [ { id: "THS8-1", text: "Alt sistem tasarımları tamamlandı mı?" }, { id: "THS8-2", text: "Tüm donanım ara yüzleri tanımlandı mı?" }, { id: "THS8-3", text: "Sistem tasarımı tamamlandı mı?" }, { id: "THS8-4", text: "Nihai ürüne entegre edilecek bileşen / alt sistem / sistem donanımlarının kabul testleri tamamlandı mı?" } ] },
             { level: 9, title: "Son ürün göreve başlamış/tamamlanmış", criteria: [ { id: "THS9-1", text: "Son ürün operasyonel olarak ispatlandı mı?" }, { id: "THS9-2", text: "Son ürünün performansının, operasyonel gereksinimleri karşıladığı doğrulandı mı?" }, { id: "THS9-3", text: "Operasyonel gereksinimlerin karşılandığını gösteren doğrulama kayıtları dokümante edildi mi?" } ] }
         ];
@@ -273,12 +273,12 @@
         const btnEngineering = document.getElementById('btn-engineering');
         const btnSoftware = document.getElementById('btn-software');
         const exportExcelBtn = document.getElementById('export-excel-btn');
-        const getSuggestionsBtn = document.getElementById('get-suggestions-btn'); // Yeni buton
+        // const getSuggestionsBtn = document.getElementById('get-suggestions-btn'); // Kaldırıldı
         const projectDateInput = document.getElementById('project-date');
         const calendarButton = document.getElementById('calendar-button');
-        const suggestionsSection = document.getElementById('suggestions-section'); // Yeni bölüm
-        const suggestionsLoading = document.getElementById('suggestions-loading'); // Yeni yükleme göstergesi
-        const suggestionsContent = document.getElementById('suggestions-content'); // Yeni öneri alanı
+        // const suggestionsSection = document.getElementById('suggestions-section'); // Kaldırıldı
+        // const suggestionsLoading = document.getElementById('suggestions-loading'); // Kaldırıldı
+        // const suggestionsContent = document.getElementById('suggestions-content'); // Kaldırıldı
 
 
         let currentData = engineeringTrlData;
@@ -567,64 +567,6 @@
             XLSX.writeFile(wb, 'TRL_Degerlendirme.xlsx');
         }
 
-        // --- Gemini API Entegrasyonu ---
-        async function getSuggestions() {
-            suggestionsSection.classList.remove('hidden');
-            suggestionsLoading.classList.remove('hidden');
-            suggestionsContent.textContent = ''; // Önceki önerileri temizle
-
-            const currentLevelText = levelText.textContent; // örn: "TRL 3"
-            const currentLevelNum = parseInt(currentLevelText.replace('TRL ', ''), 10);
-            const currentLevelTitle = titleText.textContent;
-
-            let nextLevelNum = currentLevelNum + 1;
-            // TRL 9'dan sonrası için öneri olmaması durumu
-            if (nextLevelNum > 9) {
-                suggestionsContent.textContent = "Zaten en yüksek TRL seviyesindesiniz (TRL 9). Daha fazla ilerleme önerisi bulunmamaktadır.";
-                suggestionsLoading.classList.add('hidden');
-                return;
-            }
-
-            const nextLevelData = currentData.find(d => d.level === nextLevelNum);
-            if (!nextLevelData) {
-                suggestionsContent.textContent = "Bir sonraki TRL seviyesi için veri bulunamadı.";
-                suggestionsLoading.classList.add('hidden');
-                return;
-            }
-
-            const prompt = `Mevcut Teknoloji Hazırlık Seviyesi (TRL) ${currentLevelNum}: "${currentLevelTitle}". Bir sonraki seviye olan TRL ${nextLevelNum}: "${nextLevelData.title}" seviyesine ulaşmak için yapılması gereken adımları ve dikkat edilmesi gereken noktaları detaylı bir şekilde listeler misin? Bu adımlar, mevcut seviyenin gereksinimlerini tamamlamayı ve bir sonraki seviyenin kriterlerini karşılamayı içermelidir. Yanıtını maddeler halinde ve Türkçe olarak yaz.`;
-
-            let chatHistory = [];
-            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-            const payload = { contents: chatHistory };
-            const apiKey = ""; // Canvas çalışma zamanında bu anahtarı sağlayacak
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    suggestionsContent.textContent = text;
-                } else {
-                    suggestionsContent.textContent = "Öneriler alınırken bir sorun oluştu veya boş yanıt döndü.";
-                    console.error("Gemini API'den beklenen yanıt yapısı gelmedi:", result);
-                }
-            } catch (error) {
-                suggestionsContent.textContent = `Öneriler alınırken hata oluştu: ${error.message}`;
-                console.error("Gemini API çağrısında hata:", error);
-            } finally {
-                suggestionsLoading.classList.add('hidden');
-            }
-        }
-
         // --- OLAY DİNLEYİCİLER ---
         btnEngineering.addEventListener('click', () => {
             btnEngineering.classList.add('active');
@@ -639,7 +581,7 @@
         });
 
         exportExcelBtn.addEventListener('click', exportToExcel);
-        getSuggestionsBtn.addEventListener('click', getSuggestions); // Yeni buton için olay dinleyici
+        // getSuggestionsBtn.addEventListener('click', getSuggestions); // Kaldırıldı
 
         // Add event listener for the custom calendar button
         calendarButton.addEventListener('click', () => {
